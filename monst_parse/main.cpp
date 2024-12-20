@@ -1,10 +1,13 @@
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #define uchar unsigned char
 #define schar signed char
 #define NEARDATA
 #include "monst_consts.h"
 #include <cstring>
+#include <ctime>
+#include <locale>
 using namespace std;
 
 /* NetHack 3.6	monst.c	$NHDT-Date: 1547118631 2019/01/10 11:10:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.62 $ */
@@ -23,6 +26,7 @@ using namespace std;
 
 #define WT_ELF 800
 #define WT_DRAGON 4500
+#define TEXTCOLOR
 
 #ifdef C
 #undef C
@@ -239,7 +243,7 @@ struct dict_s mz_s[]=
 
 struct dict_s ms_36_s[]=
 {
-    {"MS_SILENT",0},
+{"MS_SILENT",0},
 {"MS_BARK",1},
 {"MS_MEW",2},
 {"MS_ROAR",3},
@@ -289,47 +293,49 @@ struct dict_s ms_s[]=
 {"MS_BARK",1},
 {"MS_MEW",2},
 {"MS_ROAR",3},
-{"MS_GROWL",4},
-{"MS_SQEEK",5},
-{"MS_SQAWK",6},
-{"MS_HISS",7},
-{"MS_BUZZ",8},
-{"MS_GRUNT",9},
-{"MS_NEIGH",10},
-{"MS_MOO",11},
-{"MS_WAIL",12},
-{"MS_GURGLE",13},
-{"MS_BURBLE",14},
-{"MS_TRUMPET",15},
-{"MS_ANIMAL",15},
-{"MS_SHRIEK",16},
-{"MS_BONES",17},
-{"MS_LAUGH",18},
-{"MS_MUMBLE",19},
-{"MS_IMITATE",20},
-{"MS_WERE",21},
-{"MS_ORC",22},
-{"MS_HUMANOID",23},
-{"MS_ARREST",24},
-{"MS_SOLDIER",25},
-{"MS_GUARD",26},
-{"MS_DJINNI",27},
-{"MS_NURSE",28},
-{"MS_SEDUCE",29},
-{"MS_VAMPIRE",30},
-{"MS_BRIBE",31},
-{"MS_CUSS",32},
-{"MS_RIDER",33},
-{"MS_LEADER",34},
-{"MS_NEMESIS",35},
-{"MS_GUARDIAN",36},
-{"MS_SELL",37},
-{"MS_ORACLE",38},
-{"MS_PRIEST",39},
-{"MS_SPELL",40},
-{"MS_BOAST",41},
-{"MS_GROAN",42},
-{"MS_FERRY",43},
+{"MS_BELLOW",4},
+{"MS_GROWL",5},
+{"MS_SQEEK",6},
+{"MS_SQAWK",7},
+{"MS_CHIRP",8},
+{"MS_HISS",9},
+{"MS_BUZZ",10},
+{"MS_GRUNT",11},
+{"MS_NEIGH",12},
+{"MS_MOO",13},
+{"MS_WAIL",14},
+{"MS_GURGLE",15},
+{"MS_BURBLE",16},
+{"MS_TRUMPET",17},
+{"MS_ANIMAL",17},
+{"MS_SHRIEK",18},
+{"MS_BONES",19},
+{"MS_LAUGH",20},
+{"MS_MUMBLE",21},
+{"MS_IMITATE",22},
+{"MS_WERE",23},
+{"MS_ORC",24},
+{"MS_HUMANOID",25},
+{"MS_ARREST",26},
+{"MS_SOLDIER",27},
+{"MS_GUARD",28},
+{"MS_DJINNI",29},
+{"MS_NURSE",30},
+{"MS_SEDUCE",31},
+{"MS_VAMPIRE",32},
+{"MS_BRIBE",33},
+{"MS_CUSS",34},
+{"MS_RIDER",35},
+{"MS_LEADER",36},
+{"MS_NEMESIS",37},
+{"MS_GUARDIAN",38},
+{"MS_SELL",39},
+{"MS_ORACLE",40},
+{"MS_PRIEST",41},
+{"MS_SPELL",42},
+{"MS_BOAST",43},
+{"MS_GROAN",44},
+
 };
 
 struct dict_s geno_s[]=
@@ -423,6 +429,111 @@ struct dict_s ad_s[]=
 {"AD_CNCL",44},
 {"",0}
 };
+
+char *get_prob(struct permonst *m,char *resist)
+{
+    static char res[80];
+    float d=15.0;
+    float prob=-1.0;
+    if(strcmp(resist,"MR_ACID")==0)
+    {
+        d=3.0;
+    }
+    if(strcmp(resist,"MR_STONE")==0)
+    {
+        d=3.0;
+    }
+    if(strcmp(resist,"MR_POISON")==0)
+    {
+        if ((strcmp(m->pmnames[NEUTRAL],"killer bee")==0)||(strcmp(m->pmnames[NEUTRAL],"scorpion")==0))
+        {
+            prob=0.25*(1.0/*100%*/)+0.75*(m->mlevel/15.0);
+            goto skip;
+        }
+        else
+            d=15.0;
+    }
+    if(strcmp(resist,"M1_TPORT")==0)
+    {
+        d=10.0;
+    }
+    if(strcmp(resist,"M1_TPORT_CNTRL")==0)
+    {
+        d=12.0;
+    }
+    if(strcmp(resist,"Telepathy")==0)
+    {
+        d=1.0;
+    }
+    prob=m->mlevel/d;
+skip:
+    prob*=100.0;
+    if(prob>100.0)
+        prob=100.0;
+    sprintf(res,"%s=%2.0f",resist,prob);
+    return res;
+
+}
+
+int
+experience(struct permonst *ptr)
+{
+    int i, tmp, tmp2;
+
+    tmp = 1 + ptr->mlevel*ptr->mlevel;
+
+    /*  For higher ac values, give extra experience */
+    if ((i =ptr->ac) < 3)
+        tmp += (7 - i) * ((i < 0) ? 2 : 1);
+
+    /*  For very fast monsters, give extra experience */
+    if (ptr->mmove > NORMAL_SPEED)
+        tmp += (ptr->mmove > (3 * NORMAL_SPEED / 2)) ? 5 : 3;
+
+    /*  For each "special" attack type give extra experience */
+    for (i = 0; i < NATTK; i++) {
+        tmp2 = ptr->mattk[i].aatyp;
+        if (tmp2 > AT_BUTT) {
+            if (tmp2 == AT_WEAP)
+                tmp += 5;
+            else if (tmp2 == AT_MAGC)
+                tmp += 10;
+            else
+                tmp += 3;
+        }
+    }
+
+    /*  For each "special" damage type give extra experience */
+    for (i = 0; i < NATTK; i++) {
+        tmp2 = ptr->mattk[i].adtyp;
+        if (tmp2 > AD_PHYS && tmp2 < AD_BLND)
+            tmp += 2 * ptr->mlevel;
+        else if ((tmp2 == AD_DRLI) || (tmp2 == AD_STON) || (tmp2 == AD_SLIM))
+            tmp += 50;
+        else if (tmp2 != AD_PHYS)
+            tmp += ptr->mlevel;
+        /* extra heavy damage bonus */
+        if ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23)
+            tmp += ptr->mlevel;
+        if (tmp2 == AD_WRAP && ptr->mlet == S_EEL /*&& !Amphibious*/)
+            //это базовый опыт, поэтому не учитываем дыхание игрока
+            tmp += 1000;
+    }
+
+    /*  For certain "extra nasty" monsters, give even more */
+    if ((ptr->mflags2) & M2_NASTY)
+        tmp += (7 * ptr->mlevel);
+
+    /*  For higher level monsters, an additional bonus is given */
+    if (ptr->mlevel > 8)
+        tmp += 50;
+
+    /* Mail daemons put up no fight. */
+    if (ptr->pmnames[2] == "mail demon")
+        tmp = 1;
+
+    return (tmp);
+}
 
 char *search_dict(struct dict_s *dict,unsigned int key)
 {
@@ -525,49 +636,25 @@ const struct class_sym def_monsyms[MAXMCLASSES] = {
  *      damage types, 25 for sleep, not applicable for death or poison.
  */
 
-#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col, bn) \
-    {                                                                      \
-        {(const char *) 0, (const char *) 0, nam}, \
-        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, C(col)   \
+/* monster type with single name */
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, \
+            flg1, flg2, flg3, d, col, bn)           \
+    {                                                                   \
+        nam, NON_PM,                                                   \
+        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
     }
 
-#define MON3(namm, namf, namn, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col, bn) \
-    {                                                                      \
-        {namm, namf, namn}, \
-        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, C(col)   \
-    }
-
-#if defined(MONS_ENUM)
-#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, \
-            col, bn) PM_##bn
-
-#define MON3(namm, namf, namn, sym, lvl, gen, atk, siz, mr1, mr2, flg1, \
-             flg2, flg3, d, col, bn) PM_##bn
-
-#elif defined(DUMP_ENUMS)
-#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, \
-            col, bn) { PM_##bn, #bn}
-
-#define MON3(namm, namf, namn, sym, lvl, gen, atk, siz, mr1, mr2, flg1, \
-             flg2, flg3, d, col, bn) { PM_##bn, #bn }
-
-
-#elif !defined(MON)
-#error Non-productive inclusion of monsters.h
-#endif
-/* LVL() and SIZ() collect several fields to cut down on # of args for MON()
+/* LVL() and SIZ() collect several fields to cut down on number of args
+ * for MON().  Using more than 15 would fail to conform to the C Standard.
+ * ATTK() and A() are to avoid braces and commas within args to MON().
+ * NAM() and NAMS() are used for both reasons.
  */
+#define NAM(name) { (const char *) 0, (const char *) 0, name }
+#define NAMS(namm, namf, namn) { namm, namf, namn }
 #define LVL(lvl, mov, ac, mr, aln) lvl, mov, ac, mr, aln
 #define SIZ(wt, nut, snd, siz) wt, nut, snd, siz
-/* ATTK() and A() are to avoid braces and commas within args to MON() */
-#define ATTK(at, ad, n, d) \
-    {                      \
-        at, ad, n, d       \
-    }
-#define A(a1, a2, a3, a4, a5, a6) \
-    {                             \
-        a1, a2, a3, a4, a5, a6    \
-    }
+#define ATTK(at, ad, n, d) { at, ad, n, d }
+#define A(a1, a2, a3, a4, a5, a6) { a1, a2, a3, a4, a5, a6 }
 
 /*
  *      Rule #1:        monsters of a given class are contiguous in the
@@ -616,9 +703,12 @@ NEARDATA struct permonst mons[] = {
     /*
      * array terminator
      */
-    MON("", 0, LVL(0, 0, 0, 0, 0), (0),
+    MON(NAM(""), 0,
+        LVL(0, 0, 0, 0, 0), G_NOGEN | G_NOCORPSE,
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(0, 0, 0, 0), 0, 0, 0L, 0L, 0, 0, 0,0)
+        SIZ(0, 0, 0, 0), 0, 0,
+        0L,  M2_NOPOLY, 0,
+        0, 0, 0)
 };
 #endif /* !SPLITMON_1 */
 
@@ -715,33 +805,56 @@ int mstrength(struct permonst * ptr)
     return (tmp >= 0) ? tmp : 0;
 }
 
-
+#define TIME_STR_LEN 50
 int main()
 {
     int x=0;
     int bit=0;
     int attk_no=0;
 
-    cout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,Attack 4,Attack 5,Attack 6,Weight,Nutrition,Sound,Size,Resistance,Resist Conveyed,Flags 1,Flags 2,Flags 3,color,Comment,c2,c3,diff,diff2"<<endl;
+    std::ofstream fout;
+
+    std::time_t time = std::time({});
+    char timeString[TIME_STR_LEN];
+    std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
+    char fname[120]="mondump";
+    std::sprintf(fname,"..\\mondump-%s.csv",timeString);
+    fout.open(fname);
+
+    fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    //     0     1     2     3     4      5              6         7
+    fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
+    //     8            9         10               11       12       13
+    fout<<"Attack 4,Attack 5,Attack 6,Weight,Nutrition,Sound,Size,Resistance,";
+    //     14       15       16       17     18        19    20   21
+    fout<<"Resist Conveyed,Flags 1,Flags 2,Flags 3,color,Comment,c2,c3,diff,";
+    //     22              23      24      25      26    27      28 29 30
+    fout<<"diff2,exp,conveyed_prob"<<endl;
+    //     31    32  33
 
 
     while(mons[x].pmnames[NEUTRAL][0]!='\0')
     {
-        /* 0*/cout << x << ",";
-        //* 1*/cout << def_monsyms[mons[x].mlet].sym << ",";
+        /* 0*/fout << x << ",";
+        //* 1*/fout << def_monsyms[mons[x].mlet].sym << ",";
         if(mons[x].pmnames[MALE]!=NULL)
-        /* 1*/cout << mons[x].pmnames[MALE];
-        cout << ",";
+        /* 1*/fout << mons[x].pmnames[MALE];
+        fout << ",";
         if(mons[x].pmnames[FEMALE]!=NULL)
-        /* 2*/cout << mons[x].pmnames[FEMALE];
-        cout << ",";
-        /* 3*/cout << mons[x].pmnames[NEUTRAL] << ",";
-        /* 4*/cout << mlet_s[mons[x].mlet] << ",";
-        /* 5*/cout << (int)mons[x].mlevel << ",";//lvl
-        /* 6*/cout << (int)mons[x].mmove << ",";//speed
-        /* 7*/cout << (int)mons[x].ac << ",";
-        /* 8*/cout << (int)mons[x].mr << ",";
-        /* 9*/cout << (int)mons[x].maligntyp << ",";//align
+        /* 2*/fout << mons[x].pmnames[FEMALE];
+        fout << ",";
+        /* 3*/fout << mons[x].pmnames[NEUTRAL] << ",";
+        /* 4*/fout << mlet_s[mons[x].mlet] << ",";
+        if(mons[x].mlevel>49)
+        {
+            int hp_sp=2 * (mons[x].mlevel - 6);
+            mons[x].mlevel=hp_sp/4;
+        }
+        /* 5*/fout << (int)mons[x].mlevel << ",";//lvl
+        /* 6*/fout << (int)mons[x].mmove << ",";//speed
+        /* 7*/fout << (int)mons[x].ac << ",";
+        /* 8*/fout << (int)mons[x].mr << ",";
+        /* 9*/fout << (int)mons[x].maligntyp << ",";//align
 
 
         /*10 -- geno*/
@@ -752,43 +865,43 @@ int main()
             if(mons[x].geno&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(geno_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(geno_s,1<<bit);
                 flag_found=true;
             }
 
         }
         if(flag_found)
-            cout <<"|";
-        cout << (mons[x].geno&0x7)<<",";//маска генерации
+            fout <<"|";
+        fout << (mons[x].geno&0x7)<<",";//маска генерации
 
         /*11-16 -- ATTK */
 
         for(attk_no=0;attk_no<NATTK;attk_no++)
         {
             if(no_attk(mons[x].mattk[attk_no]))
-                cout << "NO_ATTK,";
+                fout << "NO_ATTK,";
             else
             {
 
-                cout <<"\"ATTK(";
-                cout <<search_dict(at_s,mons[x].mattk[attk_no].aatyp)<<",";
-                cout <<search_dict(ad_s,mons[x].mattk[attk_no].adtyp)<<",";
-                cout <<(int)mons[x].mattk[attk_no].damn<<",";
-                cout <<(int)mons[x].mattk[attk_no].damd<<")\",";
+                fout <<"\"ATTK(";
+                fout <<search_dict(at_s,mons[x].mattk[attk_no].aatyp)<<",";
+                fout <<search_dict(ad_s,mons[x].mattk[attk_no].adtyp)<<",";
+                fout <<(int)mons[x].mattk[attk_no].damn<<",";
+                fout <<(int)mons[x].mattk[attk_no].damd<<")\",";
             }
         }
 
         /* 17 -- weight*/
-        cout << (int)mons[x].cwt << ",";
+        fout << (int)mons[x].cwt << ",";
         /* 18 -- nutr*/
-        cout << (int)mons[x].cnutrit << ",";
+        fout << (int)mons[x].cnutrit << ",";
         /* 19 -- sound */
         for(bit=0;bit<255;bit++)
         {
             if(mons[x].msound==bit)
             {
-                cout<<search_dict(ms_s,bit)<<",";
+                fout<<search_dict(ms_s,bit)<<",";
             }
         }
         /* 20 -- size */
@@ -796,7 +909,7 @@ int main()
         {
             if(mons[x].msize==bit)
             {
-                cout<<search_dict(mz_s,bit)<<",";
+                fout<<search_dict(mz_s,bit)<<",";
             }
         }
         /* 21 -- resistances */
@@ -806,13 +919,13 @@ int main()
             if(mons[x].mresists&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(mr_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(mr_s,1<<bit);
                 flag_found=true;
             }
 
         }
-        cout<<",";
+        fout<<",";
         /* 22 -- conveys */
         flag_found=false;
         for(bit=0;bit<32;bit++)
@@ -820,13 +933,13 @@ int main()
             if(mons[x].mconveys&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(mr_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(mr_s,1<<bit);
                 flag_found=true;
             }
 
         }
-        cout<<",";
+        fout<<",";
 
         /* 23 -- flags1 */
         flag_found=false;
@@ -835,13 +948,13 @@ int main()
             if(mons[x].mflags1&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(f1_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(f1_s,1<<bit);
                 flag_found=true;
             }
 
         }
-        cout<<",";
+        fout<<",";
 
         /* 24 -- flags2 */
         flag_found=false;
@@ -850,13 +963,13 @@ int main()
             if(mons[x].mflags2&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(f2_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(f2_s,1<<bit);
                 flag_found=true;
             }
 
         }
-        cout<<",";
+        fout<<",";
 
         /* 25 -- flags3 */
         flag_found=false;
@@ -865,30 +978,74 @@ int main()
             if(mons[x].mflags3&(1<<bit))
             {
                 if(flag_found==true)
-                    cout<<"|";
-                cout<<search_dict(f3_s,1<<bit);
+                    fout<<"|";
+                fout<<search_dict(f3_s,1<<bit);
                 flag_found=true;
             }
 
         }
-        cout<<",";
-        /* 26 -- skip */
-        cout<<"-,";
+        fout<<",";
+        /* 26 -- color */
+        fout<<int(mons[x].mcolor)<<",";
         /* 27 -- skip */
-        cout<<"-,";
+        fout<<"-,";
         /* 28 -- skip */
-        cout<<"-,";
+        fout<<"-,";
         /* 29 -- skip */
-        cout<<"-,";
+        fout<<"-,";
         /* 30*/
-        cout << (int)mons[x].difficulty<<",";
+        fout << (int)mons[x].difficulty<<",";
         /* 31 -- alternate difficulty*/
-        cout << mstrength(&(mons[x]));
-        cout << endl;
+        fout << mstrength(&(mons[x]))<<",";
+        /* 32 -- base exp */
+        fout << experience(&(mons[x]))<<",";
+        /* 33 -- conveyed probabilities */
+        flag_found=false;
+        for(bit=0;bit<32;bit++)
+        {
+            if(mons[x].mconveys&(1<<bit))
+            {
+                if(flag_found==true)
+                    fout<<"|";
+                char *resist=search_dict(mr_s,1<<bit);
+                fout<<get_prob(&(mons[x]),resist);
+                flag_found=true;
+            }
+
+        }
+        if(mons[x].mflags1&M1_TPORT)
+        {
+            if(flag_found==true)
+                fout<<"|";
+            flag_found=true;
+            fout<<get_prob(&(mons[x]),"M1_TPORT");
+        }
+
+        if(mons[x].mflags1&M1_TPORT_CNTRL)
+        {
+            if(flag_found==true)
+                fout<<"|";
+            flag_found=true;
+            fout<<get_prob(&(mons[x]),"M1_TPORT_CNTRL");
+        }
+
+        if(strcmp(mons[x].pmnames[NEUTRAL],"floating eye")==0||strcmp(mons[x].pmnames[NEUTRAL],"mind flayer")==0||strcmp(mons[x].pmnames[NEUTRAL],"master mind flayer")==0)
+        {
+            if(flag_found==true)
+                fout<<"|";
+            flag_found=true;
+            fout<<get_prob(&(mons[x]),"Telepathy");
+        }
+
+        fout << endl;
 
 
         x++;
+        if (strcmp(mons[x].pmnames[2],"kobold zombie")==0)
+            cout<<"";
+        fout.flush();
     }
-    //system("pause");
+    fout.close();
+    cout<<x<<" monsters dumped\n";
     return 0;
 }

@@ -1,6 +1,7 @@
 import csv
 from math import floor
 from operator import itemgetter
+import time
 
 monsym= {'S_ANT':'a',
 'S_BLOB':'b',
@@ -127,7 +128,7 @@ ad={'AD_PHYS':'',
 'AD_CORR':' Corrode',
 'AD_CLRC':' Clerical',
 'AD_SPEL':' Mage',
-'AD_RBRE':' Breath (random)',
+'AD_RBRE':' Random',
 'AD_SAMU':' Steal Artifact',
 'AD_CURS':' Steal intrinsic',
 'AD_CNCL':' Cancel',
@@ -139,8 +140,8 @@ resists={'MR_FIRE':'Fire',
 'MR_DISINT':'Disint.',
 'MR_ELEC':'Shock',
 'MR_POISON':'Poison',
-'MR_ACID':'Acid',
-'MR_STONE':'Stoning',}
+'MR_ACID':'Acid (temp)',
+'MR_STONE':'Stoning (temp)',}
 
 rows={"index":0,
 "namem":1,
@@ -177,28 +178,9 @@ rows={"index":0,
 
 }
 
-monfile=open("mon370.csv","r")
-outfile=open("mon-edited.csv","w",newline='')
-reader=csv.reader(monfile)
-writer=csv.writer(outfile)
-
-
-#x=0
-total=0
-#out_line_header=[" ","Name","Dif","Mv","AC","MR","Resistances","Conveyed","Attacks"]
-out_line_header=[" ","Name","Dif","Attacks","Mv","AC","MR","Resistances","Conveyed","Don't eat"]
-out_line=""
-max_len_res=0
-max_len_con=0
-max_len_atk=0
-
-#cur_len_res=56
-#cur_len_con=44
-#cur_len_atk=84
-cur_len_res=66
-cur_len_con=44
-cur_len_atk=94
-
+table=[]
+table_temp=[]
+disable_sorting=False
 
 def insert (source_str, insert_str, pos):
     return source_str[:pos]+insert_str+source_str[pos:]
@@ -220,15 +202,6 @@ def split_line(line:str,mid:int)->str:
     if(pos2-mid<mid-pos1):
         return insert_after
     return insert_before
-        
-
-
-
-writer.writerow(out_line_header)
-
-table=[]
-table_temp=[]
-disable_sorting=False
 
 def append_to_table(entry):
     global table,table_temp
@@ -248,240 +221,272 @@ def append_to_table(entry):
     table_temp=[]
     table_temp.append(entry)
 
-for x, mon in enumerate(reader):
-    #x+=1
-    if x==0:#or x==1:
-        continue
-    out_line=[]
+def make_table():
 
-    #Symbol
-    out_line.append(monsym[mon[rows["symbol"]]])
-    #Name
-    out_line.append(mon[rows["name"]])
-    #Difficulty
-    out_line.append(mon[rows["difficulty"]])
+    global table,table_temp
+    global disable_sorting
+
+    dt=time.strftime("%Y-%m-%dT%H-%M-%S",time.localtime())
+
+    monfile=open(input("Enter filename:"),"r")
+    outfile=open("mon-edited"+dt+".csv","w",newline='')
+    reader=csv.reader(monfile)
+    writer=csv.writer(outfile)
 
 
-    #Attacks
-    attacks=""
-    interrupted=0
-    for attack_n in range(rows["attack1"],rows["attack6"]+1):
-        if mon[attack_n]=="NO_ATTK":
+    #x=0
+    total=0
+    #out_line_header=[" ","Name","Dif","Mv","AC","MR","Resistances","Conveyed","Attacks"]
+    out_line_header=[" ","Name","Dif","Attacks","Mv","AC","MR","Resistances","Conveyed","Don't eat"]
+    out_line=""
+    max_len_res=0
+    max_len_con=0
+    max_len_atk=0
+
+    #cur_len_res=56
+    #cur_len_con=44
+    #cur_len_atk=84
+    cur_len_res=66
+    cur_len_con=44
+    cur_len_atk=94
+
+    writer.writerow(out_line_header)
+
+    for x, mon in enumerate(reader):
+        #x+=1
+        if x==0:#or x==1:
+            continue
+        out_line=[]
+
+        #Symbol
+        out_line.append(monsym[mon[rows["symbol"]]])
+        #Name
+        out_line.append(mon[rows["name"]])
+        #Difficulty
+        out_line.append(mon[rows["difficulty"]])
+
+
+        #Attacks
+        attacks=""
+        interrupted=0
+        for attack_n in range(rows["attack1"],rows["attack6"]+1):
+            if mon[attack_n]=="NO_ATTK":
+                attacks=attacks[:-2]
+                interrupted=1
+                break
+            attack=mon[attack_n]
+            attack=attack[5:]
+            attack=attack[:-1]
+            attack=attack.split(",")
+            attack_s=""
+            #if(attack_n==rows["attack3"]):
+            #    attack_s="\n"
+            #else:
+            #    attack_s=""
+            if(attack[2].strip()=="0" and attack[3].strip()=="0"):
+                attack_s+=at[attack[0].strip()]+ad[attack[1].strip()]+", "#0d0 смотреть бесполезно
+            else:
+                attack_s+=at[attack[0].strip()]+" "+attack[2].strip()+"d"+attack[3].strip()+ad[attack[1].strip()]+", "
+            attacks+=attack_s
+        
+        if interrupted==0:#используются все шесть атак, значит надо убрать последнюю запятую
             attacks=attacks[:-2]
-            interrupted=1
-            break
-        attack=mon[attack_n]
-        attack=attack[5:]
-        attack=attack[:-1]
-        attack=attack.split(",")
-        attack_s=""
-        #if(attack_n==rows["attack3"]):
-        #    attack_s="\n"
-        #else:
-        #    attack_s=""
-        if(attack[2].strip()=="0" and attack[3].strip()=="0"):
-            attack_s+=at[attack[0].strip()]+ad[attack[1].strip()]+", "#0d0 смотреть бесполезно
-        else:
-            attack_s+=at[attack[0].strip()]+" "+attack[2].strip()+"d"+attack[3].strip()+ad[attack[1].strip()]+", "
-        attacks+=attack_s
-    
-    if interrupted==0:#используются все шесть атак, значит надо убрать последнюю запятую
-        attacks=attacks[:-2]
-    if len(attacks)>max_len_atk:
-        max_len_atk=len(attacks)
-    out_line.append(split_line(attacks,floor(cur_len_atk/2)))
+        if len(attacks)>max_len_atk:
+            max_len_atk=len(attacks)
+        out_line.append(split_line(attacks,floor(cur_len_atk/2)))
 
-    #Speed
-    out_line.append(mon[rows["speed"]])
-    #AC
-    out_line.append(mon[rows["ac"]])
-    #MR
-    out_line.append(mon[rows["mr"]])
+        #Speed
+        out_line.append(mon[rows["speed"]])
+        #AC
+        out_line.append(mon[rows["ac"]])
+        #MR
+        out_line.append(mon[rows["mr"]])
 
-    #Resistances
-    ress=""
-    resn=0
-    for res in mon[rows["res"]].split("|"):
-        res=res.strip()
-        if len(res)==0:
-            break
-        resn+=1
-        if resn>4:
-            resn=0
-            #ress+="\n"
-        ress+=resists[res.strip()]+", "
+        #Resistances
+        ress=""
+        resn=0
+        for res in mon[rows["res"]].split("|"):
+            res=res.strip()
+            if len(res)==0:
+                break
+            resn+=1
+            if resn>4:
+                resn=0
+                #ress+="\n"
+            ress+=resists[res.strip()]+", "
 
-    for flag in mon[rows["flags1"]].split("|"):
-        flag=flag.strip()
-        if(flag=="M1_SEE_INVIS"):
-            ress+="SeeInvis, "
-
-    
-
-    ress=ress[:-2]
-    if len(ress)>max_len_res:
-        max_len_res=len(ress)
-    out_line.append(split_line(ress,floor(cur_len_res/2)))
-
-
-    #Conveyed
-    ress_conv=""
-    resn=0
-    nocorpse=False
-    for geno in mon[rows["geno"]].split("|"):
-        geno=geno.strip()
-        if(len(geno)==0):
-            break
-        if geno=="G_NOCORPSE":
-            nocorpse=True
-    if nocorpse:
-        ress_conv="("
-    for res in mon[rows["resconv"]].split("|"):
-        res=res.strip()
-        if len(res)==0:
-            break
-        resn+=1
-        if resn>3:
-            resn=0
-            #ress_conv+="\n"
-        if res not in ["MR_ACID","MR_STONE"]:#эти резисты нельзя получить, т.к. они не прописаны в функции intrinsic_possible
-            ress_conv+=resists[res.strip()]+", "
-
-    for flag in mon[rows["flags1"]].split("|"):
-        flag=flag.strip()
-        if flag=="M1_TPORT":
-            ress_conv+="Teleportitis, "
-        if flag=="M1_TPORT_CNTRL":
-            ress_conv+="Teleport control, "
-
-    for flag in mon[rows["flags2"]].split("|"):
-        flag=flag.strip()
-        if flag=="M2_GIANT":
-            ress_conv+="Gain St, "
-
-    if mon[rows["name"]] in ["floating eye","mind flayer", "master mind flayer"]:
-        ress_conv+="Telepathy, "
-
-    #ничего не могу сделать, именно так это прописано в исходниках нетхака: конкретные типы монстров дают сопротивление. и это не в monst.c, это в eat.c!
-
-    if mon[rows["name"]] in ["newt"]:
-        ress_conv+="Energy boost, "
-    if mon[rows["name"]] in ["wraith"]:
-        ress_conv+="Gain level, "
-    if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
-        ress_conv+="Lycantropy, "
-    if mon[rows["name"]] in ["nurse"]:
-        ress_conv+="Heal, "
-    if mon[rows["name"]] in ["stalker"]:
-        ress_conv+="Invisibility, See invisible, "
-    if mon[rows["name"]] in ["quantum mechanic"]:
-        ress_conv+="Toggle speed, "
-    if mon[rows["name"]] in ["lizard"]:
-        ress_conv+="Reduce conf/stun, Stop petrification, "
-    if mon[rows["name"]] in ["chameleon","doppelganger","sandestin"]:
-        ress_conv+="Polymorph, "
-    if mon[rows["name"]] in ["disenchanter"]:
-        ress_conv+="Steal intrinsic, "
-    if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
-        ress_conv+="Gain In, "
-    if(len(ress_conv)>3):
-        ress_conv=ress_conv[:-2]
-    if nocorpse:
-        ress_conv+=")"
-    if ress_conv=="()":
-        ress_conv=""
-
-    if len(ress_conv)>max_len_con:
-        max_len_con=len(ress_conv)
-    out_line.append(split_line(ress_conv,floor(cur_len_con/2)))
-
-
-    #вредные эффекты при еде
-    #Eat Danger
-    bad=""
-    badn=0
-    for flag in mon[rows["flags1"]].split("|"):
-        flag=flag.strip()
-        if flag=="M1_POIS":
-            bad+="POISON\n"   
-        if flag=="M1_ACID":
-            bad+="ACID\n"
-
-    for flag in mon[rows["flags2"]].split("|"):
-        flag=flag.strip()
-        if flag=="M2_HUMAN":
-            bad+="human\n"
-        if flag=="M2_DWARF":
-            bad+="dwarf\n"
-        #if flag=="M2_ORC":#орки едят орков -- им разрешён каннибализм
-        #    bad+="orc\n"
-        if flag=="M2_ELF":
-            bad+="elf\n"
-        if flag=="M2_GNOME":
-            bad+="gnome\n"
-
-    attacks=""
-    for attack_n in range(rows["attack1"],rows["attack6"]+1):
-        if mon[attack_n]=="NO_ATTK":
-            attacks=attacks[:-2]
-            interrupted=1
-            break
-        attack=mon[attack_n]
-        attack=attack[5:]
-        attack=attack[:-1]
-        attack=attack.split(",")
-        if attack[1]=="AD_STUN" or mon[rows["name"]]=="violet fungus":
-            bad+="HALLU\n"
-            break
-
-
-    if mon[rows["name"]] in ["kitten","housecat","large cat","little dog","dog","large dog"]:
-        bad+="Aggravate\n"
-    if mon[rows["name"]] in ["cockatrice","chickatrice","Medusa"]:
-        bad+="PETRIFY\n"
-    if mon[rows["name"]] in ["Death","Pestilence","Famine"]:
-        bad+="FATAL\n"
-    if mon[rows["name"]] in ["green slime"]:
-        bad+="SLIME\n"
-    if mon[rows["name"]] in ["stalker","yellow light","giant bat","bat"]:
-        bad+="Stun\n"
-    if mon[rows["name"]] in ["small mimic","large mimic","giant mimic"]:
-        bad+="Mimic\n"
-    
-
-    bad=bad[:-1]
-    out_line.append(bad)
-
-
-    
-    #Preparing string
-    out_line_m=""
-    out_line_f=""
-    out_line_gender_neutral=out_line
-    append_to_table(out_line_gender_neutral)
-
-    if len(mon[rows["namem"]])>0:
-        out_line_m=out_line_gender_neutral.copy()
-        out_line_m[1]=mon[rows["namem"]]
-        append_to_table(out_line_m)
-    if len(mon[rows["namef"]])>0:
-        out_line_f=out_line_gender_neutral.copy()
-        out_line_f[1]=mon[rows["namef"]]
-        append_to_table(out_line_f)
-    total=x
-
-append_to_table(out_line_header)#это нужно чтобы все болтающиеся строки прокрутились
-
-for row in table:
-    writer.writerow(row)
-
-monfile.close()
-outfile.close()
-print(f"{total} monsters affected")
-print(f"max_len_res={max_len_res}")
-print(f"max_len_con={max_len_con}")
-print(f"max_len_atk={max_len_atk}")
+        for flag in mon[rows["flags1"]].split("|"):
+            flag=flag.strip()
+            if(flag=="M1_SEE_INVIS"):
+                ress+="SeeInvis, "
 
         
 
+        ress=ress[:-2]
+        if len(ress)>max_len_res:
+            max_len_res=len(ress)
+        out_line.append(split_line(ress,floor(cur_len_res/2)))
 
+
+        #Conveyed
+        ress_conv=""
+        resn=0
+        nocorpse=False
+        for geno in mon[rows["geno"]].split("|"):
+            geno=geno.strip()
+            if(len(geno)==0):
+                break
+            if geno=="G_NOCORPSE":
+                nocorpse=True
+        if nocorpse:
+            ress_conv="("
+        for res in mon[rows["resconv"]].split("|"):
+            res=res.strip()
+            if len(res)==0:
+                break
+            resn+=1
+            if resn>3:
+                resn=0
+                #ress_conv+="\n"
+            if res not in ["MR_ACID","MR_STONE"]:#эти резисты нельзя получить, т.к. они не прописаны в функции intrinsic_possible
+                ress_conv+=resists[res.strip()]+", "
+
+        for flag in mon[rows["flags1"]].split("|"):
+            flag=flag.strip()
+            if flag=="M1_TPORT":
+                ress_conv+="Teleportitis, "
+            if flag=="M1_TPORT_CNTRL":
+                ress_conv+="Teleport control, "
+
+        for flag in mon[rows["flags2"]].split("|"):
+            flag=flag.strip()
+            if flag=="M2_GIANT":
+                ress_conv+="Gain St, "
+
+        if mon[rows["name"]] in ["floating eye","mind flayer", "master mind flayer"]:
+            ress_conv+="Telepathy, "
+
+        #ничего не могу сделать, именно так это прописано в исходниках нетхака: конкретные типы монстров дают сопротивление. и это не в monst.c, это в eat.c!
+
+        if mon[rows["name"]] in ["newt"]:
+            ress_conv+="Energy boost, "
+        if mon[rows["name"]] in ["wraith"]:
+            ress_conv+="Gain level, "
+        if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
+            ress_conv+="Lycantropy, "
+        if mon[rows["name"]] in ["nurse"]:
+            ress_conv+="Heal, "
+        if mon[rows["name"]] in ["stalker"]:
+            ress_conv+="Invisibility, See invisible, "
+        if mon[rows["name"]] in ["quantum mechanic"]:
+            ress_conv+="Toggle speed, "
+        if mon[rows["name"]] in ["lizard"]:
+            ress_conv+="Reduce conf/stun, Stop petrification, "
+        if mon[rows["name"]] in ["chameleon","doppelganger","sandestin"]:
+            ress_conv+="Polymorph, "
+        if mon[rows["name"]] in ["disenchanter"]:
+            ress_conv+="Steal intrinsic, "
+        if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
+            ress_conv+="Gain In, "
+        if(len(ress_conv)>3):
+            ress_conv=ress_conv[:-2]
+        if nocorpse:
+            ress_conv+=")"
+        if ress_conv=="()":
+            ress_conv=""
+
+        if len(ress_conv)>max_len_con:
+            max_len_con=len(ress_conv)
+        out_line.append(split_line(ress_conv,floor(cur_len_con/2)))
+
+
+        #вредные эффекты при еде
+        #Eat Danger
+        bad=""
+        badn=0
+        for flag in mon[rows["flags1"]].split("|"):
+            flag=flag.strip()
+            if flag=="M1_POIS":
+                bad+="POISON\n"   
+            if flag=="M1_ACID":
+                bad+="ACID\n"
+
+        for flag in mon[rows["flags2"]].split("|"):
+            flag=flag.strip()
+            if flag=="M2_HUMAN":
+                bad+="human\n"
+            if flag=="M2_DWARF":
+                bad+="dwarf\n"
+            #if flag=="M2_ORC":#орки едят орков -- им разрешён каннибализм
+            #    bad+="orc\n"
+            if flag=="M2_ELF":
+                bad+="elf\n"
+            if flag=="M2_GNOME":
+                bad+="gnome\n"
+
+        attacks=""
+        for attack_n in range(rows["attack1"],rows["attack6"]+1):
+            if mon[attack_n]=="NO_ATTK":
+                attacks=attacks[:-2]
+                interrupted=1
+                break
+            attack=mon[attack_n]
+            attack=attack[5:]
+            attack=attack[:-1]
+            attack=attack.split(",")
+            if attack[1]=="AD_STUN" or mon[rows["name"]]=="violet fungus":
+                bad+="HALLU\n"
+                break
+
+
+        if mon[rows["name"]] in ["kitten","housecat","large cat","little dog","dog","large dog"]:
+            bad+="Aggravate\n"
+        if mon[rows["name"]] in ["cockatrice","chickatrice","Medusa"]:
+            bad+="PETRIFY\n"
+        if mon[rows["name"]] in ["Death","Pestilence","Famine"]:
+            bad+="FATAL\n"
+        if mon[rows["name"]] in ["green slime"]:
+            bad+="SLIME\n"
+        if mon[rows["name"]] in ["stalker","yellow light","giant bat","bat"]:
+            bad+="Stun\n"
+        if mon[rows["name"]] in ["small mimic","large mimic","giant mimic"]:
+            bad+="Mimic\n"
+        
+
+        bad=bad[:-1]
+        out_line.append(bad)
+
+
+        
+        #Preparing string
+        out_line_m=""
+        out_line_f=""
+        out_line_gender_neutral=out_line
+        append_to_table(out_line_gender_neutral)
+
+        if len(mon[rows["namem"]])>0:
+            out_line_m=out_line_gender_neutral.copy()
+            out_line_m[1]=mon[rows["namem"]]
+            append_to_table(out_line_m)
+        if len(mon[rows["namef"]])>0:
+            out_line_f=out_line_gender_neutral.copy()
+            out_line_f[1]=mon[rows["namef"]]
+            append_to_table(out_line_f)
+        total=x
+
+    append_to_table(out_line_header)#это нужно чтобы все болтающиеся строки прокрутились
+
+    for row in table:
+        writer.writerow(row)
+
+    monfile.close()
+    outfile.close()
+    print(f"{total} monsters affected")
+    print(f"max_len_res={max_len_res}")
+    print(f"max_len_con={max_len_con}")
+    print(f"max_len_atk={max_len_atk}")
+
+            
+
+if __name__=="__main__":
+    make_table()
