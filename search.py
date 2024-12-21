@@ -33,6 +33,8 @@ table=dict()
 table_temp=[]
 disable_sorting=False
 
+MAX_SEARCH=50
+
 def read_monsters():
     global table,table_temp
     global disable_sorting
@@ -57,10 +59,11 @@ def read_monsters():
             mon_copy[rows["flags2"]]+="|M2_MALE"
             table[mon[rows["namem"]]]=mon_copy
 
-BK=18
-INV=19
-BK_CARD=20
-INV_CARD=21
+BK=20
+INV=21
+BK_CARD=22
+INV_CARD=23
+SEPARATOR=24
 SCR_WIDTH=80
 LIST_WIDTH=SCR_WIDTH-7
 
@@ -141,12 +144,13 @@ def out_symbol(s,mon):
 
 
 NO_ATTK="NO_ATTK"
-def make_card(mon,format_length=0):
-    global max_len_atk,max_len_res,max_len_con
-    out_line=[]
-    #out_line.append("Color:"+mon[rows["color"]])
+
+def card_basic_info(mon,format_length):
     #Difficulty
-    out_line.append(f"|Dif:{mon[rows['difficulty']]:2}")
+    out_line=["#"]
+    if format_length!=2:
+        out_line.append("|")
+    out_line.append(f"Dif:{mon[rows['difficulty']]:2}")
     out_line.append(f"|Lv:{mon[rows['level']]:2}")
     out_line.append(f"|Exp:{mon[rows['exp']]:4}")
 
@@ -159,12 +163,28 @@ def make_card(mon,format_length=0):
     #Size
     out_line.append(f"|Sz:{szs[mon[rows['size']]]:8}")
     #Align
-    out_line.append(f"|Align:{mon[rows['alignment']]}\n")
+    al=int(mon[rows['alignment']])
+    out_line.append(f"|Alignment:{al}")
+    if 0:
+        out_line.append("\n")
+    else:
+        if al==0:
+            out_line.append(" (Neu)\n")
+        if al>0:
+            out_line.append(" (Law)\n")
+        if al<0 and al!=-128:
+            out_line.append(" (Cha)\n")
+        if al==-128:
+            out_line.append(" (Una)\n")
+    
+    return out_line
 
+def card_gen(mon,format_length):
     flags1=mon[rows["flags1"]].split("|")
     flags2=mon[rows["flags2"]].split("|")
     flags3=mon[rows["flags3"]].split("|")
     gen_flags=mon[rows["geno"]].split("|")
+    out_line=["#"]
 
     if format_length>0:
         for x in range(len(gen_flags)):
@@ -188,23 +208,26 @@ def make_card(mon,format_length=0):
             freq_s+="Everywhere, "
         if freq_s.endswith(", "):
             freq_s=freq_s[:-2]
-        freq_s+="|"
-        freq_s="Gen:"+freq_s
+        if format_length==2:
+            freq_s="Generation:"+freq_s+"\n"
+        else:
+            freq_s="Generation:"+freq_s+"|"
         out_line.append(freq_s)
         if "G_GENO" in gen_flags:
             out_line.append(f"Genocide: Yes|")
         else:
             out_line.append(f"Genocide: No |")
         if "M2_NOPOLY" in flags2:
-            out_line.append(f"Poly to: No |")
+            out_line.append(f"Poly to: No ")
         else:
-            out_line.append(f"Poly to: Yes|")
-#        if "G_NOCORPSE" in gen_flags:
-#            out_line.append(f"Corpse: No |")
-#        else:
-#            out_line.append(f"Corpse: Yes|")
-        out_line.append("\n")
+            out_line.append(f"Poly to: Yes")
+    out_line.append("\n")
 
+    return out_line
+
+def card_atk(mon,format_length):
+    global max_len_atk,max_len_res,max_len_con
+    out_line=["$"]
     #Attacks
     attacks=""
     interrupted=0
@@ -233,28 +256,34 @@ def make_card(mon,format_length=0):
         max_len_atk=len(attacks)
     
     attacks_list=attacks.split(",")
-    attacks_list.append(NO_ATTK)
     for x in range(len(attacks_list)):
         attacks_list[x]=attacks_list[x].strip()
     attacks_list_condensed=[]
     cnt=0
-    for x in range(len(attacks_list)):
+    if format_length!=2:
+        attacks_list.append(NO_ATTK)
+        for x in range(len(attacks_list)):
 
-        if x>0:
-            if attacks_list[x]==attacks_list[x-1]:
-                cnt+=1
-            else:
-                if cnt==0:
-                    attacks_list_condensed.append(attacks_list[x-1])
+            if x>0:
+                if attacks_list[x]==attacks_list[x-1]:
+                    cnt+=1
                 else:
-                    attacks_list_condensed.append(attacks_list[x-1]+f" (x{cnt+1})")
-                    cnt=0
-    attacks_condensed=", ".join(attacks_list_condensed)
-    out_line.append("Atk: "+attacks_condensed+"\n")
+                    if cnt==0:
+                        attacks_list_condensed.append(attacks_list[x-1])
+                    else:
+                        attacks_list_condensed.append(attacks_list[x-1]+f" (x{cnt+1})")
+                        cnt=0
+        attacks_condensed=", ".join(attacks_list_condensed)
+        out_line.append("Atk: "+attacks_condensed+"\n")
+    else:
+        attacks_list="Attacks: "+", ".join(attacks_list)+"\n"
+        out_line.append(split_line(attacks_list,SCR_WIDTH-3))
 
+    return out_line
 
-
+def card_resistances(mon,format_length):
     #Resistances
+    out_line=["#"]
     ress=""
     resn=0
     for res in mon[rows["res"]].split("|"):
@@ -279,7 +308,10 @@ def make_card(mon,format_length=0):
         ress="Resistances: "+ress+"\n"
     out_line.append(ress)
 
+    return out_line
 
+def card_eat(mon,format_length):
+    out_line=["$"]
     #Conveyed
     ress_conv=""
     resn=0
@@ -290,75 +322,103 @@ def make_card(mon,format_length=0):
             break
         if geno=="G_NOCORPSE":
             nocorpse=True
-    if nocorpse:
-        ress_conv="("
-    for res in mon[rows["resconv"]].split("|"):
-        res=res.strip()
-        if len(res)==0:
-            break
-        resn+=1
-        if resn>3:
-            resn=0
-            #ress_conv+="\n"
-        ress_conv+=resists_conv[res.strip()]+", "
 
-    for flag in mon[rows["flags1"]].split("|"):
-        flag=flag.strip()
-        if flag=="M1_TPORT":
-            ress_conv+="Teleportitis, "
-        if flag=="M1_TPORT_CNTRL":
-            ress_conv+="T. control, "
-
-    for flag in mon[rows["flags2"]].split("|"):
-        flag=flag.strip()
-        if flag=="M2_GIANT":
-            ress_conv+="Gain St, "
-
-    if mon[rows["name"]] in ["floating eye","mind flayer", "master mind flayer"]:
-        ress_conv+="Telepathy, "
-
-    #ничего не могу сделать, именно так это прописано в исходниках нетхака: конкретные типы монстров дают сопротивление. и это не в monst.c, это в eat.c!
-
-    if mon[rows["name"]] in ["newt"]:
-        ress_conv+="Energy boost, "
-    if mon[rows["name"]] in ["wraith"]:
-        ress_conv+="Gain level, "
-    if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
-        ress_conv+="Lycantropy, "
-    if mon[rows["name"]] in ["nurse"]:
-        ress_conv+="Heal, "
-    if mon[rows["name"]] in ["stalker"]:
-        ress_conv+="Invisibility, See invisible, "
-    if mon[rows["name"]] in ["quantum mechanic"]:
-        ress_conv+="Toggle speed, "
-    if mon[rows["name"]] in ["lizard"]:
-        ress_conv+="Reduce conf/stun, Stop petrification, "
-    if mon[rows["name"]] in ["chameleon","doppelganger","sandestin"]:
-        ress_conv+="Polymorph, "
-    if mon[rows["name"]] in ["disenchanter"]:
-        ress_conv+="Steal intrinsic, "
-    if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
-        ress_conv+="Gain In, "
-    if(len(ress_conv)>3):
-        ress_conv=ress_conv[:-2]
-    if nocorpse:
-        ress_conv+=")"
-    if ress_conv=="()":
-        ress_conv=""
-
-    if len(ress_conv)==0:
+    if format_length<2:
         if nocorpse:
-            ress_conv="Conveyed: No corpse"
+            ress_conv="("
+        for res in mon[rows["resconv"]].split("|"):
+            res=res.strip()
+            if len(res)==0:
+                break
+            resn+=1
+            if resn>3:
+                resn=0
+                #ress_conv+="\n"
+            ress_conv+=resists_conv[res.strip()]+", "
+
+        for flag in mon[rows["flags1"]].split("|"):
+            flag=flag.strip()
+            if flag=="M1_TPORT":
+                ress_conv+="Teleportitis, "
+            if flag=="M1_TPORT_CNTRL":
+                ress_conv+="T. Control, "
+
+        for flag in mon[rows["flags2"]].split("|"):
+            flag=flag.strip()
+            if flag=="M2_GIANT":
+                ress_conv+="Gain St, "
+
+        if mon[rows["name"]] in ["floating eye","mind flayer", "master mind flayer"]:
+            ress_conv+="Telepathy, "
+
+        #ничего не могу сделать, именно так это прописано в исходниках нетхака: конкретные типы монстров дают сопротивление. и это не в monst.c, это в eat.c!
+
+        if mon[rows["name"]] in ["newt"]:
+            ress_conv+="Energy boost, "
+        if mon[rows["name"]] in ["wraith"]:
+            ress_conv+="Gain level, "
+        if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
+            ress_conv+="Lycantropy, "
+        if mon[rows["name"]] in ["nurse"]:
+            ress_conv+="Heal, "
+        if mon[rows["name"]] in ["stalker"]:
+            ress_conv+="Invisibility, See invisible, "
+        if mon[rows["name"]] in ["quantum mechanic"]:
+            ress_conv+="Toggle speed, "
+        if mon[rows["name"]] in ["lizard"]:
+            ress_conv+="Reduce conf/stun, Stop petrification, "
+        if mon[rows["name"]] in ["chameleon","doppelganger","sandestin"]:
+            ress_conv+="Polymorph, "
+        if mon[rows["name"]] in ["disenchanter"]:
+            ress_conv+="Steal intrinsic, "
+        if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
+            ress_conv+="Gain In, "
+        if(len(ress_conv)>3):
+            ress_conv=ress_conv[:-2]
+        if nocorpse:
+            ress_conv+=")"
+        if ress_conv=="()":
+            ress_conv=""
+
+        if len(ress_conv)==0:
+            if nocorpse:
+                ress_conv="Conveyed: No corpse"
+            else:
+                ress_conv="Conveyed: None"
         else:
-            ress_conv="Conveyed: None"
-    else:
-        ress_conv="Conveyed: "+ress_conv
-    out_line.append(ress_conv+"\n")
+            ress_conv="Conveyed: "+ress_conv
+        out_line.append(ress_conv+"\n")
+
+    if format_length==2:#very long with probabilities
+        ress_final_line="Conveyed: "
+        if nocorpse:
+            ress_final_line+="("
+        ress=mon[rows['prob']].split('|')
+        if len(ress[0])>0:
+            for r in ress:
+                r_name,r_prob=r.split("=")
+                if r_name in resists_conv.keys():
+                    ress_final_line+=resists_conv[r_name]
+                else:
+                    ress_final_line+=r_name
+                prob_normalized=int(int(r_prob)/len(ress))
+                ress_final_line+=" ("+str(prob_normalized)+"%), "
+            ress_final_line=ress_final_line[:-2]
+            ress_final_line=split_line(ress_final_line,SCR_WIDTH-3)
+        if nocorpse:
+            ress_final_line+=")"
+        if len(ress[0])==0:
+            if nocorpse:
+                ress_final_line="Conveyed: No corpse"
+            else:
+                ress_final_line="Conveyed: None"
+        out_line.append(ress_final_line+"\n")
+
 
     #Wt
-    out_line.append(f"Wt:{mon[rows['weight']]:4}")
+    out_line.append(f"Weight:{mon[rows['weight']]:4}")
     #Nutrition
-    out_line.append(f"|Nut:{mon[rows['nutrition']]:4}")
+    out_line.append(f"|Nutrition:{mon[rows['nutrition']]:4}")
 
     #вредные эффекты при еде
     #Eat Danger
@@ -419,6 +479,14 @@ def make_card(mon,format_length=0):
     else:
         out_line.append("|Eat danger: "+bad+"\n")
 
+    return out_line
+
+def card_flags(mon,format_length):
+    out_line=["#"]
+    flags1=mon[rows["flags1"]].split("|")
+    flags2=mon[rows["flags2"]].split("|")
+    flags3=mon[rows["flags3"]].split("|")
+    gen_flags=mon[rows["geno"]].split("|")
     if format_length>0:#flags
         flags_all=""
         for f in flags1_str.keys():
@@ -432,6 +500,7 @@ def make_card(mon,format_length=0):
                 flags_all+=flags3_str[f]+", "
         flags_all=flags_all[:-2]+"\n"
         #out_line.append(flags_all)
+        #for debug
 
     #FLAGS PARSING
 
@@ -581,10 +650,20 @@ def make_card(mon,format_length=0):
         out_line.append(line)
         line=""
 
+    return out_line
 
 
+def make_card(mon,format_length=0):
+    global max_len_atk,max_len_res,max_len_con
+    out_line=[]
+    out_line.extend(card_basic_info(mon,format_length))
+    out_line.extend(card_gen(mon,format_length))
+    out_line.extend(card_atk(mon,format_length))
+    out_line.extend(card_resistances(mon,format_length))
+    out_line.extend(card_eat(mon,format_length))
+    out_line.extend(card_flags(mon,format_length))
 
-    
+   
     #Preparing string
     out_line_s="".join(out_line)
     return out_line_s
@@ -603,14 +682,14 @@ def main(s):
     s.clear()
     c.init_pair(BK,c.COLOR_WHITE,c.COLOR_BLUE)
     c.init_pair(INV,c.COLOR_BLUE,c.COLOR_WHITE)
-    c.init_pair(BK_CARD,c.COLOR_WHITE,c.COLOR_BLACK)
-    c.init_pair(INV_CARD,c.COLOR_BLACK,c.COLOR_WHITE)
+    c.init_pair(BK_CARD,c.COLOR_GREEN,c.COLOR_BLACK)
+    c.init_pair(INV_CARD,c.COLOR_CYAN,c.COLOR_BLACK)
     if bold==1:
         for x in range(1,9):
             c.init_pair(x,x-1,c.COLOR_BLACK)
     else:
         for x in range(1,17):
-            c.init_pair(x,x-1,c.COLOR_BLACK)        
+            c.init_pair(x,x-1,c.COLOR_BLACK)
     c.update_lines_cols()
     lines=c.LINES
     cols=c.COLS
@@ -645,10 +724,85 @@ def main(s):
         card_win.refresh()
         if len(results)>0 and len(in_str)>0:
             card_win.chgat(-1,c.color_pair(BK_CARD))
-            out_symbol(card_win,table[results[sel+skip]])
-            card_win.addstr(0,1,make_card(table[results[sel+skip]],format_length),c.color_pair(BK_CARD))
-            card_win.chgat(-1,c.color_pair(BK_CARD))
+            if format_length!=2:
+                card_win.move(0,0)
+                out_symbol(card_win,table[results[sel+skip]])
+            else:#extended
+                card_win.move(0,0)
+                card_win.addch(c.ACS_ULCORNER,c.color_pair(SEPARATOR))
+                card_win.addch(c.ACS_HLINE,c.color_pair(SEPARATOR))
+                card_win.addch(c.ACS_URCORNER,c.color_pair(SEPARATOR))
+                card_win.move(1,0)
+                card_win.addch(c.ACS_VLINE,c.color_pair(SEPARATOR))
+                out_symbol(card_win,table[results[sel+skip]])
+                card_win.addch(c.ACS_VLINE,c.color_pair(SEPARATOR))
+                card_win.move(2,0)
+                card_win.addch(c.ACS_LLCORNER,c.color_pair(SEPARATOR))
+                card_win.addch(c.ACS_HLINE,c.color_pair(SEPARATOR))
+                card_win.addch(c.ACS_LRCORNER,c.color_pair(SEPARATOR))
+            card=make_card(table[results[sel+skip]],format_length)
+            card=card.split("\n")
+            cur_pair=BK_CARD
+            line_n=0
+            for i in range(len(card)):
+                line=card[i]
+                if len(line)==0:
+                    continue
+                color=line[0]
+                remainder=False
+                if i!=0 and (card[i-1].strip()[-1])==",":
+                    remainder=True
+                if color=="#" or color=="$":
+                    line=line[1:]
+
+                if color=="#":
+                    cur_pair=BK_CARD
+                if color=="$":
+                    cur_pair=INV_CARD
+                if len(line.strip())==0:#only special character
+                    continue
+                if remainder==False:
+                    attrib=c.A_BOLD
+                else:
+                    attrib=0
+                for i in range(len(line)):
+                    if format_length!=2:
+                        if line_n==0:
+                            pos=i+1
+                        else:
+                            pos=i
+                    if format_length==2:
+                        if line_n in [0,1,2]:
+                            pos=i+3
+                        else:
+                            pos=i
+                    if line[i]=="|":
+                        card_win.addstr(line_n,pos,line[i],c.color_pair(SEPARATOR)|c.A_BOLD)
+                    else:
+                        card_win.addstr(line_n,pos,line[i],c.color_pair(cur_pair)|attrib)
+                    if line[i]==":":
+                        attrib=0
+                    if line[i]=="|":
+                        attrib=c.A_BOLD
+                line_n+=1
+                    
+                #card_win.addstr(line_n,1 if line_n==0 else 0,line,c.color_pair(cur_pair))
+                card_win.chgat(-1,c.color_pair(cur_pair))
             card_win.refresh()
+        else:
+            hello_msg=["=== Nethack external Pokedex ===",
+            "Enter monster name to see its properties. Keys:",
+            "LEFT, RIGHT: Scroll search results",
+            "UP, DOWN: Change output format",
+            "ESC: Clear search; F10: Exit"]
+            card_win.chgat(-1,c.color_pair(BK_CARD))
+            card_win.addstr(0,int((SCR_WIDTH-len(hello_msg[0]))/2),hello_msg[0],c.color_pair(INV_CARD)|c.A_BOLD)
+            for i in range(len(hello_msg)):
+                if i==0:
+                    continue
+                card_win.addstr(i,15,hello_msg[i])
+            card_win.refresh()
+            
 
         out_input(search_win,in_str)
         if len(in_str)>0:
@@ -662,66 +816,104 @@ def main(s):
                 else:
                     tries=tries
         tries=0
+        out_mode=""
+        if format_length==0:
+            out_mode="Format: mini"
+        if format_length==1:
+            out_mode="Format: full"
+        if format_length==2:
+            out_mode="Format: extended"
+        search_win.addstr(0,60,out_mode)
         move_to_in(search_win,in_str)
         search_win.refresh()
         ch=search_win.getch()
         key=c.keyname(ch).decode("utf-8")
+        if ch==27:#ESC
+            search_win.nodelay(True)
+            while search_win.getch()!=-1:
+                pass
+            search_win.nodelay(False)
+            in_str=""
         if key=="KEY_F(10)":
             break
         if key=="KEY_F(1)":
             s.clear()
-            failed_lines=0
-            failed_monsters=0
-            total=0
-            failed_current_monster=False
-            report=open("report-long.txt","w",encoding="utf-8")
-            for mon in table.keys():
-                total+=1
-                test=make_card(table[mon],format_length=0)
-                test=test.split("\n")
-                for ln in test:
-                    len_test=len(ln)
-                    if len_test>SCR_WIDTH:
-                        failed_lines+=1
-                        failed_current_monster=True
-                        report.write(f"LONG({len_test}):{mon}|[{ln[SCR_WIDTH:]}]\n")
-                        report.write(ln[:SCR_WIDTH]+"\n===\n")
-                    
-                if failed_current_monster==True:
-                    failed_monsters+=1
-                    failed_current_monster=False
-            report.close()
-            s.addstr(f"DONE-FULL. Failed: {failed_monsters} of {total}, long lines: {failed_lines}\n")
-
-            failed_lines=0
-            failed_monsters=0
-            total=0
-            failed_current_monster=False
-            report=open("report-short.txt","w",encoding="utf-8")
-            for mon in table.keys():
-                total+=1
-                test=make_card(table[mon],format_length=1)
-                test=test.split("\n")
-                for ln in test:
-                    len_test=len(ln)
-                    if len_test>SCR_WIDTH:
-                        failed_lines+=1
-                        failed_current_monster=True
-                        report.write(f"LONG({len_test}):{mon}|[{ln[SCR_WIDTH:]}]\n")
-                        report.write(ln[:SCR_WIDTH]+"\n===\n")
-                    
-                if failed_current_monster==True:
-                    failed_monsters+=1
-                    failed_current_monster=False
-            report.close()
-
-            s.addstr(f"DONE-SHORT. Failed: {failed_monsters} of {total}, long lines: {failed_lines}\n")
+            file_suffixes=["ext","long","short"]
+            for f_length in range(3):
+                failed_lines=0
+                failed_monsters=0
+                total=0
+                failed_current_monster=False
+                report=open("report"+file_suffixes[f_length]+".txt","w",encoding="utf-8")
+                for mon in table.keys():
+                    total+=1
+                    test=make_card(table[mon],format_length=f_length)
+                    test=test.split("\n")
+                    for i in range(len(test)):
+                        ln=test[i]
+                        if len(ln)>0 and (ln[0]=="#" or ln[0]=="$"):
+                            ln=ln[1:]
+                        len_test=len(ln)
+                        if f_length!=2:
+                            if i==0:
+                                test_len=SCR_WIDTH-1
+                            else:
+                                test_len=SCR_WIDTH
+                        if f_length==2:
+                            if i in [0,1,2]:
+                                test_len=SCR_WIDTH-3
+                            else:
+                                test_len=SCR_WIDTH
+                        if len_test>test_len:
+                            failed_lines+=1
+                            failed_current_monster=True
+                            report.write(f"LONG({len_test}):{mon}|[{ln[test_len:]}]\n")
+                            report.write(ln[:test_len]+"\n===\n")
+                        
+                    if failed_current_monster==True:
+                        failed_monsters+=1
+                        failed_current_monster=False
+                report.close()
+                s.addstr("DONE-"+file_suffixes[f_length].upper()+f". Failed: {failed_monsters} of {total}, long lines: {failed_lines}\n")
+            for x in range(1,17):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x))
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_BOLD)
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_STANDOUT)
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_BLINK)
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_UNDERLINE)
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_ITALIC)
+            s.addstr("\n")        
+            for x in range(1,9):
+                s.addstr(f"TEST:{x-1} ",c.color_pair(x)|c.A_DIM)
+            s.refresh()
+            for i in range(8):
+                c.init_pair(i+30,c.COLOR_WHITE,i)
+                c.init_pair(i+38,c.COLOR_BLACK,i)
+            for i in range(8):
+                s.addstr(" TEST ",c.color_pair(i+30))
+                s.addstr(" TEST ",c.color_pair(i+38))
+                s.addstr("\n")
+            
+            s.refresh()
             s.getch()
 
         if len(key)==1:
-            in_str+=key
-            sel=0
-            skip=0
+            if len(in_str)<MAX_SEARCH:
+                in_str+=key
+                sel=0
+                skip=0
+            else:
+                s.addch(0x7)
         if key=="KEY_RIGHT":
             sel+=1
             if sel>max_sel-1:
@@ -734,8 +926,14 @@ def main(s):
                 if skip>0:
                     skip-=1
                 sel=0
-        if key=="KEY_UP" or key=="KEY_DOWN":
-            format_length=1 if format_length==0 else 0
+        if key=="KEY_UP" :
+            format_length-=1
+            if format_length<=0:
+                format_length=0
+        if key=="KEY_DOWN" :
+            format_length+=1
+            if format_length>2:
+                format_length=2
         if key=="KEY_BACKSPACE" or key=="^H":
             in_str=in_str[:-1]
             sel=0

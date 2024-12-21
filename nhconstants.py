@@ -145,7 +145,9 @@ resists_conv={'MR_FIRE':'Fire',
 'MR_ELEC':'Shock',
 'MR_POISON':'Poison',
 'MR_ACID':'Acid (temp)',
-'MR_STONE':'Stoning (temp)',}
+'MR_STONE':'Stoning (temp)',
+'M1_TPORT':'Teleportitis',
+'M1_TPORT_CNTRL':'T. Control'}
 
 rows={"index":0,
 "namem":1,
