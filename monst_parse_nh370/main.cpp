@@ -748,7 +748,7 @@ int main()
     char timeString[TIME_STR_LEN];
     std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
     char fname[120]="mondump";
-    std::sprintf(fname,"..\\mondump-%s.csv",timeString);
+    std::sprintf(fname,"..\\mondump-nh370-%s.csv",timeString);
     fout.open(fname);
 
     fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
