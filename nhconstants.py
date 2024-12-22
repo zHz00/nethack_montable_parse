@@ -363,6 +363,17 @@ flags_demeanor={
 "M2_PEACEFUL":"Peaceful",
 "M2_DOMESTIC":"Domestic",
 "M2_WANDER":"Wander",
+"M2_STALK":"Follow",
+"M2_NASTY":"Nasty",
+"M3_WAITFORU":"Wait",
+"M3_CLOSE":"Let close",
+
+}
+flags_demeanor_ext={
+    "M2_HOSTILE":"Hostile",
+"M2_PEACEFUL":"Peaceful",
+"M2_DOMESTIC":"Domestic",
+"M2_WANDER":"Wander",
 "M2_STALK":"Follow to other levels",
 "M2_NASTY":"Nasty",
 "M3_WAITFORU":"Wait for you",
@@ -385,11 +396,17 @@ flags_move={
 "M1_WALLWALK":"Phase",
 "M1_CLING":"Ceiling",
 "M1_TUNNEL":"Tunnel",
-"M1_NEEDPICK":"with pick-axe",
+"M1_NEEDPICK":"(pick-axe)",
 "M1_CONCEAL":"Hide (objects)",
 "M1_HIDE":"Hide (ceil)",
 "M1_AMPHIBIOUS":"Amphibious",
 "M1_BREATHLESS":"No breath",
+}
+
+flags_move_type={
+    "M1_FLY":"Fly",
+"M1_SWIM":"Swim",
+"M1_CLING":"Ceiling",
 }
 
 flags_pick={

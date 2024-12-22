@@ -35,6 +35,15 @@ disable_sorting=False
 
 MAX_SEARCH=50
 
+def max_val_len(d:dict())->int:
+    max=0
+    for k in d.keys():
+        l=len(d[k])
+        if l>max:
+            max=l
+    return max
+
+
 def read_monsters():
     global table,table_temp
     global disable_sorting
@@ -191,9 +200,8 @@ def card_gen(mon,format_length):
             gen_flags[x]=gen_flags[x].strip()
         freq_s=""
         freq=gen_flags[-1]
-        if freq!="0":
-            freq_s+=freq+", "
-        freq_s+=freq_str[freq]+", "
+        freq_s+=freq+"["
+        freq_s+=freq_str[freq]+"], "
         if "G_UNIQ" in gen_flags:
             freq_s+="Unique, "
         if "G_SGROUP" in gen_flags:
@@ -203,7 +211,7 @@ def card_gen(mon,format_length):
         if "G_NOHELL" in gen_flags:
             freq_s+="No Gehennom, "
         if "G_HELL" in gen_flags:
-            freq_s+="Only Gehennom, "
+            freq_s+="Gehennom only, "
         if "G_NOHELL" not in gen_flags and "G_HELL" not in gen_flags:
             freq_s+="Everywhere, "
         if freq_s.endswith(", "):
@@ -274,9 +282,9 @@ def card_atk(mon,format_length):
                         attacks_list_condensed.append(attacks_list[x-1]+f" (x{cnt+1})")
                         cnt=0
         attacks_condensed=", ".join(attacks_list_condensed)
-        out_line.append("Atk: "+attacks_condensed+"\n")
+        out_line.append("Atk:"+attacks_condensed+"\n")
     else:
-        attacks_list="Attacks: "+", ".join(attacks_list)+"\n"
+        attacks_list="Attacks:"+", ".join(attacks_list)+"\n"
         out_line.append(split_line(attacks_list,SCR_WIDTH-3))
 
     return out_line
@@ -303,14 +311,18 @@ def card_resistances(mon,format_length):
     if ress.endswith(", "):
         ress=ress[:-2]
     if len(ress)==0:
-        ress="Resistances: None\n"
+        ress="Resistances:None\n"
     else:
-        ress="Resistances: "+ress+"\n"
+        ress="Resistances:"+ress+"\n"
     out_line.append(ress)
 
     return out_line
 
 def card_eat(mon,format_length):
+    flags1=mon[rows["flags1"]].split("|")
+    flags2=mon[rows["flags2"]].split("|")
+    flags3=mon[rows["flags3"]].split("|")
+    gen_flags=mon[rows["geno"]].split("|")
     out_line=["$"]
     #Conveyed
     ress_conv=""
@@ -323,96 +335,84 @@ def card_eat(mon,format_length):
         if geno=="G_NOCORPSE":
             nocorpse=True
 
-    if format_length<2:
-        if nocorpse:
-            ress_conv="("
-        for res in mon[rows["resconv"]].split("|"):
-            res=res.strip()
-            if len(res)==0:
-                break
-            resn+=1
-            if resn>3:
-                resn=0
-                #ress_conv+="\n"
-            ress_conv+=resists_conv[res.strip()]+", "
-
-        for flag in mon[rows["flags1"]].split("|"):
-            flag=flag.strip()
-            if flag=="M1_TPORT":
-                ress_conv+="Teleportitis, "
-            if flag=="M1_TPORT_CNTRL":
-                ress_conv+="T. Control, "
-
-        for flag in mon[rows["flags2"]].split("|"):
-            flag=flag.strip()
-            if flag=="M2_GIANT":
-                ress_conv+="Gain St, "
-
-        if mon[rows["name"]] in ["floating eye","mind flayer", "master mind flayer"]:
-            ress_conv+="Telepathy, "
-
-        #ничего не могу сделать, именно так это прописано в исходниках нетхака: конкретные типы монстров дают сопротивление. и это не в monst.c, это в eat.c!
-
-        if mon[rows["name"]] in ["newt"]:
-            ress_conv+="Energy boost, "
-        if mon[rows["name"]] in ["wraith"]:
-            ress_conv+="Gain level, "
-        if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
-            ress_conv+="Lycantropy, "
-        if mon[rows["name"]] in ["nurse"]:
-            ress_conv+="Heal, "
-        if mon[rows["name"]] in ["stalker"]:
-            ress_conv+="Invisibility, See invisible, "
-        if mon[rows["name"]] in ["quantum mechanic"]:
-            ress_conv+="Toggle speed, "
-        if mon[rows["name"]] in ["lizard"]:
-            ress_conv+="Reduce conf/stun, Stop petrification, "
-        if mon[rows["name"]] in ["chameleon","doppelganger","sandestin"]:
-            ress_conv+="Polymorph, "
-        if mon[rows["name"]] in ["disenchanter"]:
-            ress_conv+="Steal intrinsic, "
-        if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
-            ress_conv+="Gain In, "
-        if(len(ress_conv)>3):
-            ress_conv=ress_conv[:-2]
-        if nocorpse:
-            ress_conv+=")"
-        if ress_conv=="()":
-            ress_conv=""
-
-        if len(ress_conv)==0:
-            if nocorpse:
-                ress_conv="Conveyed: No corpse"
+    prefix="Conveyed:"
+    if mon[rows["name"]]=="Chromatic Dragon":
+        prefix=prefix#degub; Chromatic Dragon is most difficult monster in terms of formatting
+    ress_final_line=""
+    if nocorpse:
+        ress_final_line+="("
+    ress=mon[rows['prob']].split('|')
+    ress_n=len(ress)
+    if "M2_GIANT" in flags2:
+        ress_n+=1
+    if len(ress[0])>0:
+        for r in ress:
+            r_name,r_prob=r.split("=")
+            if r_name in resists_conv.keys():
+                ress_final_line+=resists_conv[r_name]
             else:
-                ress_conv="Conveyed: None"
+                ress_final_line+=r_name
+            prob_normalized=int(int(r_prob)/ress_n)
+            if format_length==2:
+                ress_final_line+="("+str(prob_normalized)+"%), "
+            else:
+                ress_final_line+=", "
+    if "M2_GIANT" in flags2:
+        if ress_n==1:
+            prob=int(50)
         else:
-            ress_conv="Conveyed: "+ress_conv
-        out_line.append(ress_conv+"\n")
+            prob=int(100/ress_n)
+        ress_final_line+="Gain St"+(f"({prob}%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["newt"]:
+        ress_final_line+="Pw"+("(66% restore, 22% +1 MAX), " if format_length==2 else ", ")
+    attacks=""
+    for attack_n in range(rows["attack1"],rows["attack6"]+1):
+        if mon[attack_n]=="NO_ATTK":
+            attacks=attacks[:-2]
+            interrupted=1
+            break
+        attack=mon[attack_n]
+        attack=attack[5:]
+        attack=attack[:-1]
+        attack=attack.split(",")
+        if attack[0]=="AT_MAGC":
+            ress_final_line+="Pw"+("(66% restore, 22% +1), " if format_length==2 else ", ")
+            break
+    if mon[rows["name"]] in ["wraith"]:
+        ress_final_line+="Gain level"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["nurse"]:
+        ress_final_line+="Heal"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["stalker"]:
+        ress_final_line+="Invisibility"+("(100%), " if format_length==2 else ", ")+"See invisible"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["quantum mechanic"]:
+        ress_final_line+="Toggle speed"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["lizard"]:
+        ress_final_line+="Reduce conf/stun"+("(100%), " if format_length==2 else ", ")+"Stop petrification"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["chameleon","doppelganger","sandestin","genetic engineer"]:
+        ress_final_line+="Polymorph"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["disenchanter"]:
+        ress_final_line+="Steal intrinsic"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["displacer beast"]:
+        ress_final_line+="Displacement (temp)"+("(100%), " if format_length==2 else ", ")
+    if mon[rows["name"]] in ["mind flayer","master mind flayer"]:
+        ress_final_line+="Gain In"+("(50%), " if format_length==2 else ", ")
+    ress_final_line=ress_final_line[:-2]
+    if nocorpse:
+        ress_final_line+=")"
+    if len(ress_final_line)<=2:#"()" with no resistances and no corpse
+        if nocorpse:
+            ress_final_line=prefix+"No corpse"
+        else:
+            ress_final_line=prefix+"None"
+    else:
+        ress_final_line=prefix+ress_final_line
 
-    if format_length==2:#very long with probabilities
-        ress_final_line="Conveyed: "
-        if nocorpse:
-            ress_final_line+="("
-        ress=mon[rows['prob']].split('|')
-        if len(ress[0])>0:
-            for r in ress:
-                r_name,r_prob=r.split("=")
-                if r_name in resists_conv.keys():
-                    ress_final_line+=resists_conv[r_name]
-                else:
-                    ress_final_line+=r_name
-                prob_normalized=int(int(r_prob)/len(ress))
-                ress_final_line+=" ("+str(prob_normalized)+"%), "
-            ress_final_line=ress_final_line[:-2]
-            ress_final_line=split_line(ress_final_line,SCR_WIDTH-3)
-        if nocorpse:
-            ress_final_line+=")"
-        if len(ress[0])==0:
-            if nocorpse:
-                ress_final_line="Conveyed: No corpse"
-            else:
-                ress_final_line="Conveyed: None"
-        out_line.append(ress_final_line+"\n")
+    if format_length==2:
+        ress_final_line=split_line(ress_final_line,SCR_WIDTH)
+    
+    if len(ress_final_line)>SCR_WIDTH and format_length!=2:
+        ress_final_line=ress_final_line.replace(", ",",")#remove spaces for shorter line
+    out_line.append(ress_final_line+"\n")
 
 
     #Wt
@@ -471,7 +471,8 @@ def card_eat(mon,format_length):
         bad+="Stun, "
     if mon[rows["name"]] in ["small mimic","large mimic","giant mimic"]:
         bad+="Mimic, "
-    
+    if mon[rows["name"]] in ["wererat","werejackal","werewolf"]:
+        bad+="Lycantropy, "
 
     bad=bad[:-2]
     if len(bad)==0:
@@ -507,40 +508,45 @@ def card_flags(mon,format_length):
     #LINE1. CATEGORY. GENDER. DIET
     if format_length>0:
         line=""
-        flags_str=""
+        flag_str=""
+        cat_len=max_val_len(flags_category)
 
-        prefix="Catetory: "
+        prefix="Catetory:"
+        cat_len=max_val_len(flags_category)
         found=False
         for flag in flags_category.keys():
             if flag in flags2:
                 found=True
-                flag_str=flags_category[flag]+"|"
+                flag_str=f"{flags_category[flag]:{cat_len}}|"
         if found==False:
-            flag_str="Ordinary|"
+            flag_str=f"{'Ordinary':{cat_len}}|"
         line+=prefix+flag_str
 
-        prefix="Gender: "
+        prefix="Gender:"
+        cat_len=max_val_len(flags_gender)
         found=False
         for flag in flags_gender.keys():
             if flag in flags2:
                 found=True
-                flag_str=flags_gender[flag]+"|"
+                flag_str=f"{flags_gender[flag]:{cat_len}}|"
         if found==False:
-            flag_str="None|"
+            flag_str=f"{'None':{cat_len}}|"
         line+=prefix+flag_str
 
-        prefix="Diet: "
+        prefix="Diet:"
+        cat_len=max_val_len(flags_diet)
         found=False
         if "M1_CARNIVORE" in flags1 and "M1_HERBIVORE" in flags1:
             found=True
-            flag_str="Omnivore"
+            flag_str=f"{'Omnivore':{cat_len}}|"
         else:
             for flag in flags_diet.keys():
                 if flag in flags1:
                     found=True
-                    flag_str=flags_diet[flag]+"|"
+                    flag_str=f"{flags_diet[flag]:{cat_len}}|"
         if found==False:
-            flag_str="Inediate|"
+            flag_str=f"{'Inediate':{cat_len}}|"
+        line+=prefix+flag_str
         prefix="Infravisible: "
         if "M3_INFRAVISIBLE" in flags3:
             flag_str="Yes"
@@ -552,18 +558,19 @@ def card_flags(mon,format_length):
         line=""
     #LINE 2. BODY PLAN
         flag_str=""
-        prefix="Body type: "
+        prefix="Body type:"
+        cat_len=max_val_len(flags_body)
         found=False
         for flag in flags_body.keys():
             if flag in flags1:
                 found=True
-                flag_str=flags_body[flag]+"|"
+                flag_str=f"{flags_body[flag]:{cat_len}}|"
         if found==False:
-            flag_str="Unknown|"
+            flag_str=f"{'Unusual':{cat_len}}|"
 
         line+=prefix+flag_str
 
-        prefix="Body parts: "
+        prefix="Body parts:"
         flag_str=""
         no_limbs=False
         if "M1_NOLIMBS" in flags_parts_no.keys() and "M1_NOHANDS" not in flags_parts_no.keys():
@@ -583,30 +590,42 @@ def card_flags(mon,format_length):
         line=""
 
         #LINE 3. BEHAVIOR: DEMEANOR, MOVEMENT, WANTS, PICK
-        prefix="Demeanor: "
+        prefix="Demeanor:"
         found=False
+        flag_str=""
         for flag in flags_demeanor.keys():
             if flag in flags2 or flag in flags3:
                 found=True
-                flag_str=flags_demeanor[flag]+", "
+                if format_length==2:
+                    flag_str+=flags_demeanor_ext[flag]+", "
+                else:
+                    flag_str+=flags_demeanor[flag]+", "
         if found==False:
             flag_str="None, "
-        flag_str=flag_str[:-2]+"|"
+        flag_str=flag_str[:-2]
+        if format_length==2:
+            flag_str+="\n"
+        else:
+            flag_str+="|"
         line+=prefix+flag_str
 
-        prefix="Move: "
+        prefix="Move:"
         flag_str=""
         found=False
         for flag in flags_move.keys():
-            if flag in flags1 or flag in flags1:
-                found=True
+            if flag in flags1:
+                if flag=="M1_NEEDPICK":
+                    flag_str=flag_str[:-2]+" "#remove "," from "Tunnel"
                 flag_str+=flags_move[flag]+", "
+        for flag in flags_move_type.keys():
+            if flag in flags1:
+                found=True
         if found==False:
-            flag_str="Walk, "
+            flag_str="Walk, "+flag_str
         flag_str=flag_str[:-2]+"|"
         line+=prefix+flag_str
 
-        prefix="Picks: "
+        prefix="Picks:"
         flag_str=""
         found=False
         for flag in flags_pick.keys():
@@ -614,13 +633,16 @@ def card_flags(mon,format_length):
                 found=True
                 flag_str+=flags_pick[flag]+", "
         if found==False:
-            flag_str+="None, "
-        if "M1_NOTAKE" in flags1:
-            flags_str+="Can't, "
+            if "M1_NOTAKE" in flags1:
+                flag_str+="Can't, "
+            else:
+                flag_str+="None, "
         flag_str=flag_str[:-2]+"\n"
         line+=prefix+flag_str
+        if len(line)>SCR_WIDTH and format_length!=2:
+            line=line.replace(", ",",")#remove spaces for shorter line
 
-        prefix="Wants: "
+        prefix="Wants:"
         flag_str=""
         found=False
         for flag in flags_covet.keys():
@@ -635,7 +657,7 @@ def card_flags(mon,format_length):
         out_line.append(line)
         line=""
 
-        prefix="Perks: "
+        prefix="Perks:"
         flag_str=""
         found=False
         for flag in flags_perks.keys():
@@ -838,13 +860,13 @@ def main(s):
             break
         if key=="KEY_F(1)":
             s.clear()
-            file_suffixes=["ext","long","short"]
+            file_suffixes=["short","long","ext"]
             for f_length in range(3):
                 failed_lines=0
                 failed_monsters=0
                 total=0
                 failed_current_monster=False
-                report=open("report"+file_suffixes[f_length]+".txt","w",encoding="utf-8")
+                report=open("report-"+file_suffixes[f_length]+".txt","w",encoding="utf-8")
                 for mon in table.keys():
                     total+=1
                     test=make_card(table[mon],format_length=f_length)
