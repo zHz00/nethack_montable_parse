@@ -6,7 +6,24 @@
 #ifndef PERMONST_H
 #define PERMONST_H
 
-
+enum monnums {
+#define MONS_ENUM
+#include "monsters.h"
+#undef MONS_ENUM
+        NUMMONS,
+        NON_PM = -1,              /* "not a monster" */
+        LOW_PM = NON_PM + 1,      /* first monster in mons */
+        LEAVESTATUE = NON_PM - 1, /* leave statue instead of corpse;
+                                   * there are two lower values assigned
+                                   * in end.c so that (x == LEAVESTATUE)
+                                   * will test FALSE in bones.c:
+                                   *  (NON_PM - 2) for no corpse
+                                   *  (NON_PM - 3) for no corpse, no grave */
+        HIGH_PM = NUMMONS - 1,
+        SPECIAL_PM = PM_LONG_WORM_TAIL  /* [normal] < ~ < [special] */
+                /* mons[SPECIAL_PM] through mons[NUMMONS-1], inclusive, are
+                   never generated randomly and cannot be polymorphed into */
+};
 
 /*     This structure covers all attack forms.
  *     aatyp is the gross attack type (eg. claw, bite, breath, ...)
@@ -42,8 +59,6 @@ struct attack {
 #include "monattk.h"
 #include "monflag.h"
 
-enum monnums {NON_PM=-1};
-
 struct permonst {
     const char *pmnames[NUM_MGENDERS];
     const enum monnums pmidx;   /* mons array index aka PM_ identifier */
@@ -67,6 +82,9 @@ struct permonst {
     uchar difficulty;           /* toughness (formerly from  makedefs -m) */
     uchar mcolor;               /* color to use */
 };
+
+extern NEARDATA struct permonst mons[NUMMONS + 1]; /* the master list of
+                                                    * monster types */
 
 #define VERY_SLOW 3
 #define SLOW_SPEED 9

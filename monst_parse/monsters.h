@@ -1,5 +1,85 @@
-#ifndef MONSTERS_H_INCLUDED
-#define MONSTERS_H_INCLUDED
+/* NetHack 3.7	monsters.h	$NHDT-Date: 1723945838 2024/08/18 01:50:38 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.124 $ */
+/* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/*-Copyright (c) Michael Allison, 2006. */
+/* NetHack may be freely redistributed.  See license for details. */
+
+#if defined(MONS_ENUM)
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, \
+            col, bn) PM_##bn
+
+#elif defined(DUMP_ENUMS)
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, \
+            col, bn) { PM_##bn, #bn}
+
+#elif !defined(MON)
+#error Non-productive inclusion of monsters.h
+#endif
+
+/*
+ *      Entry Format:   (from permonst.h)
+ *
+ *      name, symbol (S_* defines),
+ *      base monster level, move rate, armor class, magic resistance,
+ *      alignment, creation/geno flags (G_* defines),
+ *      6 * attack structs ( type , damage-type, # dice, # sides ),
+ *      weight (WT_* defines), nutritional value, extension length,
+ *      sounds made (MS_* defines), physical size (MZ_* defines),
+ *      resistances, resistances conferred (both MR_* defines),
+ *      3 * flag bitmaps (M1_*, M2_*, and M3_* defines respectively),
+ *      difficulty, symbol color.
+ *
+ *      The difficulty was generated in separate array monstr[] with
+ *      values calculated by makedefs, but has been moved into mons[]
+ *      since it rarely changes.  If a new monster is added or an old
+ *      one undergoes significant change, 'makedefs -m' can be used to
+ *      create a dummy monstr.c containing the calculated difficulty
+ *      (of everything in mons[], not just any new or changed ones),
+ *      then the value(s) can be plugged in here and monstr.c deleted.
+ *      [Note that some monsters might warrant manually calculated
+ *      difficulty, on a case by case basis, instead of blindly using
+ *      the default value produced by makedefs.  Or fix the algorithm
+ *      used by makedefs to generate a more appropriate value....]
+ *
+ *      TODO:  difficulty is closely related to level; its field ought
+ *      to be moved sooner in the permonst struct so that it can become
+ *      part of LVL() instead of remaining an orphan near the end.
+ *
+ *      Rule #1:        monsters of a given class are contiguous in the
+ *                      mons[] array.
+ *
+ *      Rule #2:        monsters of a given class are presented in ascending
+ *                      order of strength.
+ *
+ *      Rule #3:        monster frequency is included in the geno mask;
+ *                      the frequency can be from 0 to 7.  0's will also
+ *                      be skipped during generation.
+ *
+ *      Rule #4:        monster subclasses (e.g. giants) should be kept
+ *                      together, unless it violates Rule 2.  NOGEN monsters
+ *                      won't violate Rule 2.
+ *
+ * Guidelines for color assignment:
+ *
+ *      * Use the same color for all `growth stages' of a monster (ex.
+ *        little dog/big dog, baby naga/full-grown naga.
+ *
+ *      * Use colors given in names wherever possible. If the class has `real'
+ *        members with strong color associations, use those.
+ *
+ *      * Favor `cool' colors for cold-resistant monsters, `warm' ones for
+ *        fire-resistant ones.
+ *
+ *      * Try to reserve purple (magenta) for powerful `ruler' monsters (queen
+ *        bee, kobold lord, &c.).
+ *
+ *      * Subject to all these constraints, try to use color to make as many
+ *        distinctions as the / command (that is, within a monster letter
+ *        distinct names should map to distinct colors).
+ *
+ * The aim in assigning colors is to be consistent enough so a player can
+ * become `intuitive' about them, deducing some or all of these rules
+ * unconsciously. Use your common sense.
+ */
 
     /*
      * ants
@@ -3831,5 +3911,15 @@
         M3_INFRAVISIBLE,
         8, HI_DOMESTIC, APPRENTICE),
 
+    /*
+     * mons_init() in monst.c adds a terminator here, mons[NUMMONS].
+     * It is part of the mons[] array without introducing another type
+     * of monster.
+     */
 
-#endif // MONSTERS_H_INCLUDED
+#if defined(MONS_ENUM) || defined(DUMP_ENUMS)
+#undef MON
+#undef MON3
+#endif
+
+/*monsters.h*/

@@ -4,28 +4,21 @@
 #define uchar unsigned char
 #define schar signed char
 #define NEARDATA
-#include "monst_consts.h"
 #include <cstring>
 #include <ctime>
 #include <locale>
 using namespace std;
-
-/* NetHack 3.6	monst.c	$NHDT-Date: 1547118631 2019/01/10 11:10:31 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.62 $ */
-/* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/*-Copyright (c) Michael Allison, 2006. */
-/* NetHack may be freely redistributed.  See license for details. */
+typedef unsigned char boolean;
 
 //#include "config.h"
-#include "permonst.h"
 #include "monsym.h"
+#include "permonst.h"
 
 #define NO_ATTK    \
     {              \
         0, 0, 0, 0 \
     }
 
-#define WT_ELF 800
-#define WT_DRAGON 4500
 #define TEXTCOLOR
 
 #ifdef C
@@ -40,7 +33,7 @@ using namespace std;
 #define C(color)
 #endif
 
-char mlet_s[MAXMCLASSES][40]={
+char mlet_s[][40]={
     "",
     "S_ANT",
 "S_BLOB",
@@ -554,69 +547,6 @@ struct class_sym {
     const char *explain;
 };
 
-const struct class_sym def_monsyms[MAXMCLASSES] = {
-    { '\0', "", "" },
-    { DEF_ANT, "", "ant or other insect" },
-    { DEF_BLOB, "", "blob" },
-    { DEF_COCKATRICE, "", "cockatrice" },
-    { DEF_DOG, "", "dog or other canine" },
-    { DEF_EYE, "", "eye or sphere" },
-    { DEF_FELINE, "", "cat or other feline" },
-    { DEF_GREMLIN, "", "gremlin" },
-    { DEF_HUMANOID, "", "humanoid" },
-    { DEF_IMP, "", "imp or minor demon" },
-    { DEF_JELLY, "", "jelly" },
-    { DEF_KOBOLD, "", "kobold" },
-    { DEF_LEPRECHAUN, "", "leprechaun" },
-    { DEF_MIMIC, "", "mimic" },
-    { DEF_NYMPH, "", "nymph" },
-    { DEF_ORC, "", "orc" },
-    { DEF_PIERCER, "", "piercer" },
-    { DEF_QUADRUPED, "", "quadruped" },
-    { DEF_RODENT, "", "rodent" },
-    { DEF_SPIDER, "", "arachnid or centipede" },
-    { DEF_TRAPPER, "", "trapper or lurker above" },
-    { DEF_UNICORN, "", "unicorn or horse" },
-    { DEF_VORTEX, "", "vortex" },
-    { DEF_WORM, "", "worm" },
-    { DEF_XAN, "", "xan or other mythical/fantastic insect" },
-    { DEF_LIGHT, "", "light" },
-    { DEF_ZRUTY, "", "zruty" },
-    { DEF_ANGEL, "", "angelic being" },
-    { DEF_BAT, "", "bat or bird" },
-    { DEF_CENTAUR, "", "centaur" },
-    { DEF_DRAGON, "", "dragon" },
-    { DEF_ELEMENTAL, "", "elemental" },
-    { DEF_FUNGUS, "", "fungus or mold" },
-    { DEF_GNOME, "", "gnome" },
-    { DEF_GIANT, "", "giant humanoid" },
-    { '\0', "", "invisible monster" },
-    { DEF_JABBERWOCK, "", "jabberwock" },
-    { DEF_KOP, "", "Keystone Kop" },
-    { DEF_LICH, "", "lich" },
-    { DEF_MUMMY, "", "mummy" },
-    { DEF_NAGA, "", "naga" },
-    { DEF_OGRE, "", "ogre" },
-    { DEF_PUDDING, "", "pudding or ooze" },
-    { DEF_QUANTMECH, "", "quantum mechanic" },
-    { DEF_RUSTMONST, "", "rust monster or disenchanter" },
-    { DEF_SNAKE, "", "snake" },
-    { DEF_TROLL, "", "troll" },
-    { DEF_UMBER, "", "umber hulk" },
-    { DEF_VAMPIRE, "", "vampire" },
-    { DEF_WRAITH, "", "wraith" },
-    { DEF_XORN, "", "xorn" },
-    { DEF_YETI, "", "apelike creature" },
-    { DEF_ZOMBIE, "", "zombie" },
-    { DEF_HUMAN, "", "human or elf" },
-    { DEF_GHOST, "", "ghost" },
-    { DEF_GOLEM, "", "golem" },
-    { DEF_DEMON, "", "major demon" },
-    { DEF_EEL, "", "sea monster" },
-    { DEF_LIZARD, "", "lizard" },
-    { DEF_WORM_TAIL, "", "long worm tail" },
-    { DEF_MIMIC_DEF, "", "mimic" },
-};
 
 //void NDECL(monst_init);
 /*

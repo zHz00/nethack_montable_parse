@@ -36,7 +36,6 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="monattk.h" />
 		<Unit filename="monflag.h" />
-		<Unit filename="monst_consts.h" />
 		<Unit filename="monsters.h" />
 		<Unit filename="monsym.h" />
 		<Unit filename="permonst.h" />
