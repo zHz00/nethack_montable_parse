@@ -1,0 +1,63 @@
+# depslib dependency file v1.0
+1732664885 source:c:\users\zhz\nethack-montable\monst_parse\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	"monst_consts.h"
+	<cstring>
+	<ctime>
+	<locale>
+	"permonst.h"
+	"monsym.h"
+	"color.h"
+	"monsters.h"
+
+1657328303 c:\users\zhz\nethack-montable\monst_parse\monst_consts.h
+
+1732608803 c:\users\zhz\nethack-montable\monst_parse\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1583688571 c:\users\zhz\nethack-montable\monst_parse\align.h
+
+1657459514 c:\users\zhz\nethack-montable\monst_parse\monattk.h
+
+1732381452 c:\users\zhz\nethack-montable\monst_parse\monflag.h
+
+1583688571 c:\users\zhz\nethack-montable\monst_parse\monsym.h
+
+1732605571 c:\users\zhz\nethack-montable\monst_parse\monsters.h
+
+1732381452 c:\users\zhz\nethack-montable\monst_parse\color.h
+
+1735178183 source:c:\users\zhz\nethack-montable-parse\monst_parse_xnh\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+	"monsters.h"
+
+1734911971 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\monsym.h
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+	"monsters.h"
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\align.h
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\monattk.h
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\monflag.h
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\monsters.h
+
+1726335385 c:\users\zhz\nethack-montable-parse\monst_parse_xnh\color.h
+
