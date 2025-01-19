@@ -10,6 +10,8 @@
 using namespace std;
 typedef unsigned char boolean;
 
+#define MAIL_STRUCTURES
+
 //#include "config.h"
 #include "monsym.h"
 #include "permonst.h"
@@ -18,6 +20,7 @@ typedef unsigned char boolean;
     {              \
         0, 0, 0, 0 \
     }
+
 
 #define TEXTCOLOR
 
@@ -522,7 +525,7 @@ experience(struct permonst *ptr)
         tmp += 50;
 
     /* Mail daemons put up no fight. */
-    if (ptr->pmnames[2] == "mail demon")
+    if (strcmp(ptr->pmnames[2],"mail daemon")==0)
         tmp = 1;
 
     return (tmp);
@@ -537,7 +540,7 @@ char *search_dict(struct dict_s *dict,unsigned int key)
             return dict[x].value;
         x++;
     }
-
+    printf("%08x not found! First value is %s.\n",key,dict[0].value);
     return NULL;
 }
 
@@ -748,7 +751,8 @@ int main()
     char timeString[TIME_STR_LEN];
     std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
     char fname[120]="mondump";
-    std::sprintf(fname,"..\\mondump-nh370-%s.csv",timeString);
+    std::sprintf(fname,"..\\mondump-%s-nh370.csv",timeString);
+    std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
     fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
@@ -765,7 +769,8 @@ int main()
 
     while(mons[x].pmnames[NEUTRAL][0]!='\0')
     {
-        /* 0*/fout << x << ",";
+        ///* 0*/fout << x << ",";
+        fout << ",";//we ignore index bc it has no purpose
         //* 1*/fout << def_monsyms[mons[x].mlet].sym << ",";
         if(mons[x].pmnames[MALE]!=NULL)
         /* 1*/fout << mons[x].pmnames[MALE];
