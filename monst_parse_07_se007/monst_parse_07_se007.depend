@@ -1,0 +1,141 @@
+# depslib dependency file v1.0
+1732664885 source:c:\users\zhz\nethack-montable\monst_parse\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	"monst_consts.h"
+	<cstring>
+	<ctime>
+	<locale>
+	"permonst.h"
+	"monsym.h"
+	"color.h"
+	"monsters.h"
+
+1657328303 c:\users\zhz\nethack-montable\monst_parse\monst_consts.h
+
+1732608803 c:\users\zhz\nethack-montable\monst_parse\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1583688571 c:\users\zhz\nethack-montable\monst_parse\align.h
+
+1657459514 c:\users\zhz\nethack-montable\monst_parse\monattk.h
+
+1732381452 c:\users\zhz\nethack-montable\monst_parse\monflag.h
+
+1583688571 c:\users\zhz\nethack-montable\monst_parse\monsym.h
+
+1732605571 c:\users\zhz\nethack-montable\monst_parse\monsters.h
+
+1732381452 c:\users\zhz\nethack-montable\monst_parse\color.h
+
+1583688571 source:c:\users\zhz\nethack-montable-parse\monst_parse_nh367\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"color.h"
+
+1734895262 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\config.h
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\align.h
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\monattk.h
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\monflag.h
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\monsym.h
+
+1583688571 c:\users\zhz\nethack-montable-parse\monst_parse_nh367\color.h
+
+1070840354 source:c:\users\zhz\nethack-montable-parse\monst_parse_nh343\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"dungeon.h"
+	"eshk.h"
+	"vault.h"
+	"epri.h"
+	"color.h"
+
+1734900100 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\config.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\align.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\monattk.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\monflag.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\monsym.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\dungeon.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\eshk.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\vault.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\epri.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_nh343\color.h
+
+1734899195 source:c:\users\zhz\nethack-montable-parse\monst_parse_nh343\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+
+1167484111 source:c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"dungeon.h"
+	"eshk.h"
+	"vault.h"
+	"epri.h"
+	"egyp.h"
+	"color.h"
+
+1734900100 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\config.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\align.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\monattk.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\monflag.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\monsym.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\dungeon.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\eshk.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\vault.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\epri.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\color.h
+
+1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\egyp.h
+
