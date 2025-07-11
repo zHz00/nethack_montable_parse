@@ -29,7 +29,7 @@ using namespace std;
 #define C(color)
 #endif
 
-char mlet_s[][40]={
+char mlet_s[][65]={
     "",
     "S_ANT",
 "S_BLOB",
@@ -57,7 +57,9 @@ char mlet_s[][40]={
 "S_XAN",
 "S_LIGHT",
 "S_ZRUTY",
-"S_ANGEL",
+"S_LAW_ANGEL",
+"S_NEU_ANGEL",
+"S_CHA_ANGEL",
 "S_BAT",
 "S_CENTAUR",
 "S_DRAGON",
@@ -85,10 +87,13 @@ char mlet_s[][40]={
 "S_ZOMBIE",
 "S_HUMAN",
 "S_GHOST",
+"S_SHADE",
 "S_GOLEM",
 "S_DEMON",
 "S_EEL",
 "S_LIZARD",
+"S_PLANT",
+"S_NEU_OUTSIDER",
 "S_WORM_TAIL",
 "S_MIMIC_DEF"
 };
@@ -174,7 +179,7 @@ struct dict_s fmm_s[]=//flags1->flagsm (motility)
 {"M1_TPORT",0x00000200L},//MM_TPORT
 {"M1_TPORT_CNTRL",0x00000400L},//MM_TPORT_CNTRL
 {"M1_TENGTPORT",0x00000800L},//MM_TENGTPORT
-{"M1_STATIONARY",0x00001000L},//MM_STATIONARY
+{"M3_STATIONARY",0x00001000L},//MM_STATIONARY
 {"M1_FLOAT",0x00002000L},//MM_FLOAT
 {"M1_NOTONL",0x00004000L},//MM_NOTONL
 {"M1_FLEETFLEE",0x00008000L},//MM_FLEETFLEE
@@ -1030,7 +1035,18 @@ int main()
         //* 1*/fout << def_monsyms[mons[x].mlet].sym << ",";
         fout << ",";//male name -- absent
         fout << ",";//female name -- absent
-        /* 3*/fout << mons[x].mname<< ",";
+
+        /* 3 -- name*/
+        bool escape_comma=false;
+        if(strstr(mons[x].mname,",")!=NULL)
+            escape_comma=true;
+        if(escape_comma)
+            fout<<"\"";
+        fout << mons[x].mname;
+        if(escape_comma)
+            fout<<"\",";
+        else
+            fout<<",";
         /* 4*/fout << mlet_s[mons[x].mlet] << ",";
         if(mons[x].mlevel>49)
         {
@@ -1246,6 +1262,8 @@ int main()
         fout<<(int)mons[x].spe_gdr<<",";
         fout<<(int)mons[x].spe_ldr<<",";
         fout<<(int)mons[x].spe_fdr<<",";
+        //53 -- insight
+        fout<<(int)(G_C_INST(mons[x].geno))<<",";
 
 
         fout << endl;
