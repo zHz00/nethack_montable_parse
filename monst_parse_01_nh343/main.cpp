@@ -424,14 +424,15 @@ char *get_prob(struct permonst *m,char *resist)
     static char res[80];
     float d=15.0;
     float prob=-1.0;
-    if(strcmp(resist,"MR_ACID")==0)
+    /*if(strcmp(resist,"MR_ACID")==0)
     {
         d=3.0;
     }
     if(strcmp(resist,"MR_STONE")==0)
     {
         d=3.0;
-    }
+    }*/
+    //3.4.3 have no acid/stone resist
     if(strcmp(resist,"MR_POISON")==0)
     {
         if ((strcmp(m->mname,"killer bee")==0)||(strcmp(m->mname,"scorpion")==0))
@@ -827,6 +828,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented in 3.4.3
                 if(flag_found==true)
                     fout<<"|";
                 char *resist=search_dict(mr_s,1<<bit);

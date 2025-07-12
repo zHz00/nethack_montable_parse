@@ -13,6 +13,7 @@ typedef unsigned char boolean;
 #define MAIL_STRUCTURES
 
 //#include "config.h"
+#include "weight.h"
 #include "monsym.h"
 #include "permonst.h"
 
@@ -437,7 +438,7 @@ char *get_prob(struct permonst *m,char *resist)
     }
     if(strcmp(resist,"MR_STONE")==0)
     {
-        d=3.0;
+        d=6.0;
     }
     if(strcmp(resist,"MR_POISON")==0)
     {

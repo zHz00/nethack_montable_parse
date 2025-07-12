@@ -441,7 +441,7 @@ char *get_prob(struct permonst *m,char *resist)
     }
     if(strcmp(resist,"MR_STONE")==0)
     {
-        d=3.0;
+        d=6.0;
     }
     if(strcmp(resist,"MR_POISON")==0)
     {
@@ -463,7 +463,15 @@ char *get_prob(struct permonst *m,char *resist)
     }
     if(strcmp(resist,"Telepathy")==0)
     {
-        d=1.0;
+        if
+            (
+                (strcmp(m->pmnames[NEUTRAL],"floating eye")==0)||
+                (strcmp(m->pmnames[NEUTRAL],"mind flayer")==0)||
+                (strcmp(m->pmnames[NEUTRAL],"master mind flayer")==0)
+            )
+            d=1.0;
+        else
+            d=20.0;
     }
     prob=m->mlevel/d;
 skip:
@@ -576,16 +584,9 @@ struct class_sym {
 /* monster type with single name */
 #define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, \
             flg1, flg2, flg3, d, col, bn)           \
-    {                                                                       \
-        { (const char *) 0, (const char *) 0, nam },                        \
-            sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, C(col)  \
-    }
-
-#define MON3(namm, namf, namn, sym, lvl, gen, atk, siz, mr1, mr2, \
-             flg1, flg2, flg3, d, col, bn)                        \
-    {                                                                       \
-        { namm, namf, namn },                                               \
-        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, C(col)      \
+    {                                                                   \
+        nam, PM_##bn,                                                   \
+        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
     }
 
 /* LVL() and SIZ() collect several fields to cut down on number of args
@@ -647,9 +648,19 @@ NEARDATA struct permonst mons[] = {
     /*
      * array terminator
      */
-    MON("", 0, LVL(0, 0, 0, 0, 0), (0),
+#undef MON
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, \
+            flg1, flg2, flg3, d, col, bn)           \
+    {                                                                   \
+        nam, NON_PM,                                                    \
+        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
+    }
+    MON(NAM(""), 0,
+        LVL(0, 0, 0, 0, 0), G_NOGEN | G_NOCORPSE,
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(0, 0, 0, 0), 0, 0, 0L, 0L, 0, 0, 0, 0)
+        SIZ(0, 0, 0, 0), 0, 0,
+        0L,  M2_NOPOLY, 0,
+        0, 0, 0),
 };
 #endif /* !SPLITMON_1 */
 
@@ -759,7 +770,7 @@ int main()
     char timeString[TIME_STR_LEN];
     std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
     char fname[120]="mondump";
-    std::sprintf(fname,"..\\mondump-%s-xnh8.csv",timeString);
+    std::sprintf(fname,"..\\mondump-%s-xnh9.csv",timeString);
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
@@ -971,7 +982,15 @@ int main()
             fout<<get_prob(&(mons[x]),"M1_TPORT_CNTRL");
         }
 
-        if(strcmp(mons[x].pmnames[NEUTRAL],"floating eye")==0||strcmp(mons[x].pmnames[NEUTRAL],"mind flayer")==0||strcmp(mons[x].pmnames[NEUTRAL],"master mind flayer")==0)
+        if
+            (
+                strcmp(mons[x].pmnames[NEUTRAL],"floating eye")==0||
+                strcmp(mons[x].pmnames[NEUTRAL],"mind flayer")==0||
+                strcmp(mons[x].pmnames[NEUTRAL],"master mind flayer")==0||
+                strcmp(mons[x].pmnames[NEUTRAL],"orc shaman")==0||
+                strcmp(mons[x].pmnames[NEUTRAL],"kobold shaman")==0||
+                strcmp(mons[x].pmnames[NEUTRAL],"gnomish wizard")==0
+            )
         {
             if(flag_found==true)
                 fout<<"|";
