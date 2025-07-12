@@ -755,6 +755,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented in 3.4.3/un6
                 if(flag_found==true)
                     fout<<"|";
                 fout<<search_dict(mr_s,1<<bit);
