@@ -159,3 +159,38 @@
 	"monsym.h"
 	"color.h"
 
+1752358978 source:c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\config.h
+
+1752323303 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\monsym.h
+
+1752323303 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1752323303 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\align.h
+
+1752323303 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\monattk.h
+
+1752323851 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\monflag.h
+
+1752323303 c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\color.h
+
+1745073042 source:c:\users\user\documents\nethack_montable_parse\monst_parse_06_eh09\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"color.h"
+

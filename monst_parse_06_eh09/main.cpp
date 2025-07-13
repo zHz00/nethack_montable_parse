@@ -29,6 +29,38 @@ using namespace std;
 #define C(color)
 #endif
 
+/*
+#define telepathic(ptr) \
+    ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER]            \
+     || (ptr) == &mons[PM_MASTER_MIND_FLAYER] || (ptr) == &mons[PM_GOBLIN_SHAMAN] \
+     || (ptr) == &mons[PM_KOBOLD_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN]         \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_ELVEN_WIZARD]   \
+     || (ptr) == &mons[PM_GNOMISH_WIZARD] || (ptr) == &mons[PM_ALHOON]            \
+     || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_GNOLL_CLERIC]            \
+     || (ptr) == &mons[PM_NEOTHELID] || (ptr) == &mons[PM_TORTLE_SHAMAN]          \
+     || (ptr) == &mons[PM_DROW_MAGE] || (ptr) == &mons[PM_DROW_CLERIC])
+*/
+
+char telepathic[][40]={
+    "floating eye",
+    "mind flayer",
+    "master mind flayer",
+    "goblin shaman",
+    "kobold shaman",
+    "orc shaman",
+    "hill giant shaman",
+    "elven wizard",
+    "gnomish wizard",
+    "alhoon",
+    "illithid",
+    "gnoll cleric",
+    "neothelid",
+    "tortle shaman",
+    "drow mage",
+    "drow cleric",
+    ""
+};
+
 char mlet_s[][40]={
     "",
     "S_ANT",
@@ -169,10 +201,10 @@ struct dict_s f1_s[]=
 struct dict_s f2_s[]=
 {
 {"M2_NOPOLY",0x00000001L},
-{"M2_UNDEAD",0x00000002L},
-{"M2_WERE",0x00000004L},
-{"M2_HUMAN",0x00000008L},
-{"M2_ELF",0x00000010L},
+{"M2_DRUID_FORM_A",0x00000002L},
+{"M2_DRUID_FORM_B",0x00000004L},
+{"M2_DRUID_FORM_C",0x00000008L},
+{"M2_DRUID_FORM_D",0x00000010L},
 {"M2_DWARF",0x00000020L},
 {"M2_GNOME",0x00000040L},
 {"M2_ORC",0x00000080L},
@@ -485,42 +517,30 @@ char *get_prob(struct permonst *m,char *resist)
     static char res[80];
     float d=15.0;
     float prob=-1.0;
-    if(strcmp(resist,"MR_ACID")==0)
-    {
-        d=3.0;
-    }
-    if(strcmp(resist,"MR_STONE")==0)
-    {
-        d=3.0;
-    }
-    if(strcmp(resist,"MR_POISON")==0)
-    {
-        if ((strcmp(m->mname,"killer bee")==0)||(strcmp(m->mname,"scorpion")==0))
-        {
-            prob=0.25*(1.0/*100%*/)+0.75*(m->mlevel/15.0);
-            goto skip;
-        }
-        else
-            d=15.0;
-    }
+    char added[2]="~";
     if(strcmp(resist,"M1_TPORT")==0)
     {
-        d=10.0;
+        prob=20.0;
+        strcpy(added,"!");//special case for evil hack, we don't need to divide probabilities in search.py
     }
     if(strcmp(resist,"M1_TPORT_CNTRL")==0)
     {
-        d=12.0;
+        prob=10.0;
+        strcpy(added,"!");
     }
     if(strcmp(resist,"Telepathy")==0)
     {
-        d=1.0;
-    }
-    prob=m->mlevel/d;
-skip:
-    prob*=100.0;
-    if(prob>100.0)
         prob=100.0;
-    sprintf(res,"%s=%2.0f",resist,prob);
+        strcpy(added,"!");
+    }
+    if(strcmp(added,"~")==0)
+    {//percentage intrinsic
+        strcpy(added,"+");
+        prob=m->cwt/90;
+        if(prob<5)
+            prob=5;
+    }
+    sprintf(res,"%s=%s%.0f",resist,added,prob);
     return res;
 
 }
@@ -703,7 +723,7 @@ int main()
     char timeString[TIME_STR_LEN];
     std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
     char fname[120]="mondump";
-    std::sprintf(fname,"..\\mondump-%s-eh08.csv",timeString);
+    std::sprintf(fname,"..\\mondump-%s-eh09.csv",timeString);
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
@@ -877,7 +897,7 @@ int main()
         /* 29 -- skip */
         fout<<"-,";
         /* 30*/
-        fout << mstrength(&(mons[x]))<<",";//in 3.4.3 we have only calculated strength
+        fout << (int)(mons[x].difficulty)<<",";
         /* 31 -- alternate difficulty*/
         fout << mstrength(&(mons[x]))<<",";
         /* 32 -- base exp */
@@ -912,13 +932,21 @@ int main()
             fout<<get_prob(&(mons[x]),"M1_TPORT_CNTRL");
         }
 
-        if(strcmp(mons[x].mname,"floating eye")==0||strcmp(mons[x].mname,"mind flayer")==0||strcmp(mons[x].mname,"master mind flayer")==0)
+        //if(strcmp(mons[x].mname,"floating eye")==0||strcmp(mons[x].mname,"mind flayer")==0||strcmp(mons[x].mname,"master mind flayer")==0)
+        int y=0;
+        char *t;
+        do
         {
-            if(flag_found==true)
-                fout<<"|";
-            flag_found=true;
-            fout<<get_prob(&(mons[x]),"Telepathy");
-        }
+            t=telepathic[y];
+            if (strcmp(mons[x].mname,t)==0)
+            {
+                if(flag_found==true)
+                    fout<<"|";
+                flag_found=true;
+                fout<<get_prob(&(mons[x]),"Telepathy");
+            }
+            y++;
+        }while(strlen(t)>0);
         fout<<",";
 
         // 34 -- flags4

@@ -445,14 +445,6 @@ char *get_prob(struct permonst *m,char *resist)
     static char res[80];
     float d=15.0;
     float prob=-1.0;
-    if(strcmp(resist,"MR_ACID")==0)
-    {
-        d=3.0;
-    }
-    if(strcmp(resist,"MR_STONE")==0)
-    {
-        d=3.0;
-    }
     if(strcmp(resist,"MR_POISON")==0)
     {
         if ((strcmp(m->mname,"killer bee")==0)||(strcmp(m->mname,"scorpion")==0))
@@ -603,6 +595,7 @@ int mstrength(struct permonst * ptr)
     /*	For creation in groups */
     n = (!!(ptr->geno & G_SGROUP));
     n += (!!(ptr->geno & G_LGROUP)) << 1;
+    n += (!!(ptr->geno & G_VLGROUP)) << 2;
 
     /*	For ranged attacks */
     if (ranged_attk(ptr))
@@ -633,6 +626,9 @@ int mstrength(struct permonst * ptr)
             n += (tmp2 != AD_PHYS);
         n += ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23);
     }
+
+    if(ptr->mflags2&M2_NASTY)
+        n+=5;
 
     /*	Leprechauns are special cases.  They have many hit dice so they
 	can hit and are hard to kill, but they don't really do much damage. */
@@ -775,6 +771,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented in 3.6.x
                 if(flag_found==true)
                     fout<<"|";
                 fout<<search_dict(mr_s,1<<bit);
@@ -848,6 +846,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented in 3.6.x
                 if(flag_found==true)
                     fout<<"|";
                 char *resist=search_dict(mr_s,1<<bit);

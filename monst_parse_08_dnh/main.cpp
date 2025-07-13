@@ -184,7 +184,8 @@ struct dict_s fmm_s[]=//flags1->flagsm (motility)
 {"M1_NOTONL",0x00004000L},//MM_NOTONL
 {"M1_FLEETFLEE",0x00008000L},//MM_FLEETFLEE
 {"M1_WEBRIP",0x00010000L},//MM_WEBRIP
-{"M1_DOORBUST",0x00020000L},//MM_DOORBUST
+{"M1_DOORBUST",0x00020000L},//MM_DOORBUST,
+{"M1_AQUATIC",0x00040000L},//MM_AQUATIC
 
 
 {"",0}
@@ -222,6 +223,7 @@ struct dict_s fmb_s[]=//flags1->flagsb (body plan)
 {"M1_INSUBSTANTIAL",0x04000000L},
 {"M1_NOGLOVES",0x08000000L},
 {"M1_NOHAT",0x10000000L},
+{"M1_SKELETAL",0x20000000L},//MB_SKELETAL
 //#define MB_SNAKELEG	(MB_HUMANOID|MB_SLITHY)
 //#define MB_CENTAUR	(MB_HUMANOID|MB_ANIMAL)
 {"",0}
@@ -551,6 +553,7 @@ struct dict_s at_s[]=
 {"AT_WBIT",43},
 {"AT_TAIL",44},
 {"AT_TONG",45},
+{"AT_VOMT",46},
 {"AT_WEAP",252},
 {"AT_XWEP",253},
 {"AT_MARI",254},
@@ -711,28 +714,34 @@ struct dict_s ad_s[]=
 {"AD_UNRV",153},
 {"AD_MADF",154},
 {"AD_FATK",155},
+{"AD_DRHP",156},
+{"AD_PUSH",157},
+{"AD_FATK",158},
+{"AD_FATK",159},
+{"AD_FATK",160},
 
-{"AD_DUNSTAN",156},
-{"AD_IRIS",157},
-{"AD_NABERIUS",158},
-{"AD_OTIAX",159},
-{"AD_SIMURGH",160},
 
-{"AD_CMSL",161},
-{"AD_FMSL",162},
-{"AD_EMSL",163},
-{"AD_SMSL",164},
-{"AD_WMTG",165},
+{"AD_DUNSTAN",161},
+{"AD_IRIS",162},
+{"AD_NABERIUS",163},
+{"AD_OTIAX",164},
+{"AD_SIMURGH",165},
 
-{"AD_CLRC",166},
-{"AD_SPEL",167},
-{"AD_RBRE",168},
-{"AD_RGAZ",169},
-{"AD_RETR",170},
+{"AD_CMSL",166},
+{"AD_FMSL",167},
+{"AD_EMSL",168},
+{"AD_SMSL",169},
+{"AD_WMTG",170},
 
-{"AD_SAMU",171},
-{"AD_CURS",172},
-{"AD_SQUE",173},
+{"AD_CLRC",171},
+{"AD_SPEL",172},
+{"AD_RBRE",173},
+{"AD_RGAZ",174},
+{"AD_RETR",175},
+
+{"AD_SAMU",176},
+{"AD_CURS",177},
+{"AD_SQUE",178},
 
 {"",0}
 };
@@ -740,16 +749,19 @@ struct dict_s ad_s[]=
 char *get_prob(struct permonst *m,char *resist)
 {
     static char res[80];
-    float d=15.0;
+    char prefix[2]="~";
+    float d=-1.0;
     float prob=-1.0;
-    if(strcmp(resist,"MR_ACID")==0)
-    {
-        d=3.0;
-    }
-    if(strcmp(resist,"MR_STONE")==0)
-    {
-        d=3.0;
-    }
+    int multiplier=0,permanent=0;
+    int nutval=m->cnutrit;
+	if(m->mlevel < 5) multiplier = 5;
+	else if (m->mlevel < 10) multiplier = 10;
+	else if (m->mlevel < 15) multiplier = 15;
+	else multiplier = 20;
+	if(m->geno & G_UNIQ) multiplier = 20;
+	if(m->geno & G_UNIQ && m->mlevel > 14) permanent = 1;
+
+	long duration = nutval * multiplier;
     if(strcmp(resist,"MR_POISON")==0)
     {
         if ((strcmp(m->mname,"killer bee")==0)||(strcmp(m->mname,"scorpion")==0))
@@ -759,6 +771,10 @@ char *get_prob(struct permonst *m,char *resist)
         }
         else
             d=15.0;
+    }
+    if(strcmp(resist,"MR_DISINT")==0)
+    {
+        d=15.0;
     }
     if(strcmp(resist,"M1_TPORT")==0)
     {
@@ -771,13 +787,39 @@ char *get_prob(struct permonst *m,char *resist)
     if(strcmp(resist,"Telepathy")==0)
     {
         d=1.0;
+
+    }
+    if(strcmp(resist,"Displaced")==0)
+    {
+        if(strcmp(m->mname,"shimmering dragon")==0)
+        {
+            d=-1.0;//100% chance, timeout
+            goto skip;
+        }
+        d=10.0;
     }
     prob=m->mlevel/d;
 skip:
-    prob*=100.0;
-    if(prob>100.0)
-        prob=100.0;
-    sprintf(res,"%s=%2.0f",resist,prob);
+    if(d<0)
+    {
+        //we need duration
+        if(permanent)
+            sprintf(res,"%s=#",resist,duration);
+        else
+            sprintf(res,"%s=T%d",resist,duration);
+    }
+    else
+    {
+        //ordinary probability
+        prob*=100.0;
+        if(prob>100.0)
+            prob=100.0;
+        if(strcmp(resist,"Displaced")==0)
+            sprintf(res,"%s=%2.0f;T%d",resist,prob,duration);
+        else
+            sprintf(res,"%s=%2.0f",resist,prob);
+
+    }
     return res;
 
 }
@@ -786,11 +828,25 @@ int
 experience(struct permonst *ptr)
 {
     int i, tmp, tmp2;
+    if(strcmp(ptr->mname,"dancing blade")==0||
+       strcmp(ptr->mname,"long sinuous tentacle")==0||
+       strcmp(ptr->mname,"swarm of snaking tentacles")==0||
+       strcmp(ptr->mname,"wide-clubbed tentacle")==0||
+       strcmp(ptr->mname,"priest of a unknown god")==0||
+
+       strcmp(ptr->mname,"dungeon fern spore")==0||
+       strcmp(ptr->mname,"swamp fern spore")==0||
+       strcmp(ptr->mname,"burning fern spore")==0
+       )
+        return 0;
 
     tmp = 1 + ptr->mlevel*ptr->mlevel;
 
     /*  For higher ac values, give extra experience */
-    if ((i =ptr->nac) < 3)
+    int base_ac=10 - ptr->nac - ptr->dac - ptr->pac;
+    //this is very simplified formula, but we can't calculate correct ac without knowing
+    //exact monster parameters during actual play, so we count some "base" AC
+    if ((i =base_ac) < 3)
         tmp += (7 - i) * ((i < 0) ? 2 : 1);
 
     /*  For very fast monsters, give extra experience */
@@ -803,7 +859,7 @@ experience(struct permonst *ptr)
         if (tmp2 > AT_BUTT) {
             if (tmp2 == AT_WEAP)
                 tmp += 5;
-            else if (tmp2 == AT_MAGC)
+            else if (tmp2 == AT_MAGC|| tmp2 == AT_MMGC)
                 tmp += 10;
             else
                 tmp += 3;
@@ -940,6 +996,8 @@ static bool ranged_attk(struct permonst *ptr)
     return false;
 }
 
+#define has_phys_scaling(ptr)		((ptr)->mflagsf&MF_PHYS_SCALING)
+
 int mstrength(struct permonst * ptr)
 {
     int	i, tmp2, n, tmp = ptr->mlevel;
@@ -958,35 +1016,85 @@ int mstrength(struct permonst * ptr)
         n++;
 
     /*	For higher ac values */
-    n += (ptr->nac < 4);
-    n += (ptr->nac < 0);
+	tmp2 = 10-(ptr->nac+ptr->dac+ptr->pac);
+	n += (tmp2 < 4);
+	n += (tmp2 < 0);
+	n += (tmp2 < -5);
+	n += (tmp2 < -10);
+	n += (tmp2 < -20);
 
     /*	For very fast monsters */
     n += (ptr->mmove >= 18);
 
     /*	For each attack and "special" attack */
     for (i = 0; i < NATTK; i++) {
+		if(ptr->mlevel < ptr->mattk[i].lev_req)
+			continue;
+
+		if(ptr->mattk[i].ins_req > 0)
+			continue;
+
         tmp2 = ptr->mattk[i].aatyp;
         n += (tmp2 > 0);
-        n += (tmp2 == AT_MAGC);
-        n += (tmp2 == AT_WEAP && (ptr->mflagsb & MB_STRONG));
+		n += (tmp2 == AT_MAGC || tmp2 == AT_MMGC ||
+			tmp2 == AT_TUCH || tmp2 == AT_TNKR ||
+			spirit_rapier_at(tmp2));
+		n += (tmp2 == AT_WEAP && (ptr->mflagsb & MB_STRONG));
+		if(has_phys_scaling(ptr) &&
+		  (ptr->mattk[i].aatyp || ptr->mattk[i].adtyp || ptr->mattk[i].damn || ptr->mattk[i].damd)
+		  &&!(
+			tmp2 == AT_SPIT
+			|| tmp2 == AT_BREA
+			|| tmp2 == AT_BRSH
+			|| tmp2 == AT_BOOM
+			|| tmp2 == AT_GAZE
+			|| tmp2 == AT_ARRW
+			|| tmp2 == AT_MMGC
+			|| tmp2 == AT_TNKR
+			|| tmp2 == AT_WDGZ
+			|| tmp2 == AT_MAGC
+		))
+			n += 2;
     }
 
-    /*	For each "special" damage type */
-    for (i = 0; i < NATTK; i++) {
-        tmp2 = ptr->mattk[i].adtyp;
-        if ((tmp2 == AD_DRLI) || (tmp2 == AD_STON) || (tmp2 == AD_DRST)
-            || (tmp2 == AD_DRDX) || (tmp2 == AD_DRCO) || (tmp2 == AD_WERE))
-            n += 2;
-        else if (strcmp(ptr->mname, "grid bug"))
-            n += (tmp2 != AD_PHYS);
-        n += ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23);
-    }
+	/*	For each "special" damage type */
+	for (i = 0; i < NATTK; i++) {
+
+		if(ptr->mlevel < ptr->mattk[i].lev_req)
+			continue;
+
+		if(ptr->mattk[i].ins_req > 0)
+			continue;
+
+		tmp2 = ptr->mattk[i].adtyp;
+		if ((tmp2 == AD_DRLI) || (tmp2 == AD_STON) || (tmp2 == AD_DRST)
+			|| (tmp2 == AD_DRDX) || (tmp2 == AD_DRCO) || (tmp2 == AD_WERE)
+			|| (tmp2 == AD_SVPN)
+			|| (tmp2 == AD_SHDW) || (tmp2 == AD_STAR) || (tmp2 == AD_BLUD)
+			|| (tmp2 == AD_MOON) || (tmp2 == AD_HOLY) || (tmp2 == AD_UNHY) || (tmp2 == AD_HLUH)
+			|| (tmp2 == AD_DETH) || (tmp2 == AD_PEST) || (tmp2 == AD_FAMN) || (tmp2 == AD_CNFT)
+			|| (tmp2 == AD_BLAS)
+		)
+			n += 2;
+		else if (strcmp(ptr->mname, "grid bug")) n += (tmp2 != AD_PHYS);
+		n += ((int)(ptr->mattk[i].damd * ptr->mattk[i].damn) > 23);
+	}
 
     /*	Leprechauns are special cases.  They have many hit dice so they
 	can hit and are hard to kill, but they don't really do much damage. */
     if (!strcmp(ptr->mname, "leprechaun"))
         n -= 2;
+
+	/*	Hooloovoo spawn many dangerous enemies. */
+	if (!strcmp(ptr->mname, "hooloovoo")) n += 10;
+
+/*	Some monsters have nonstandard groups that increase difficulty. */
+	if (!strcmp(ptr->mname, "arcadian avenger")) n += 1;
+
+	if (!strcmp(ptr->mname, "drow matron")) n += 2;
+	if (!strcmp(ptr->mname, "Elvenking")) n += 2;
+	if (!strcmp(ptr->mname, "Elvenqueen")) n += 2;
+	if (!strcmp(ptr->mname, "chiropteran")) n += 2;
 
     /*	Finally, adjust the monster level  0 <= n <= 24 (approx.) */
     if (n == 0)
@@ -1095,7 +1203,8 @@ int main()
                 fout <<(int)mons[x].mattk[attk_no].lev_req<<",";
                 fout <<(int)mons[x].mattk[attk_no].offhand<<",";
                 fout <<(int)mons[x].mattk[attk_no].polywep<<",";
-                fout <<(int)mons[x].mattk[attk_no].ins_req<<")\",";
+                fout <<(int)mons[x].mattk[attk_no].ins_req<<",";
+                fout <<(int)mons[x].mattk[attk_no].san_req<<")\",";
             }
         }
 
@@ -1179,6 +1288,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if(1<<bit==MR_STONE)
+                    continue;
                 if(flag_found==true)
                     fout<<"|";
                 char *resist=search_dict(mr_s,1<<bit);
@@ -1203,13 +1314,21 @@ int main()
             fout<<get_prob(&(mons[x]),"M1_TPORT_CNTRL");
         }
 
-        if(strcmp(mons[x].mname,"floating eye")==0||strcmp(mons[x].mname,"mind flayer")==0||strcmp(mons[x].mname,"master mind flayer")==0)
+        if(mons[x].mflagsv & MV_TELEPATHIC)
         {
             if(flag_found==true)
                 fout<<"|";
             flag_found=true;
             fout<<get_prob(&(mons[x]),"Telepathy");
         }
+        if(mons[x].mflagsg&MG_DISPLACEMENT)
+        {
+            if(flag_found==true)
+                fout<<"|";
+            flag_found=true;
+            fout<<get_prob(&(mons[x]),"Displace");
+        }
+
         fout<<",";
         // 34 -- flags4
         fout << convert_dnh_flags(4,&(mons[x]));
@@ -1264,6 +1383,8 @@ int main()
         fout<<(int)mons[x].spe_fdr<<",";
         //53 -- insight
         fout<<(int)(G_C_INST(mons[x].geno))<<",";
+        //54 -- light radius
+        fout<<(int)mons[x].light_radius;
 
 
         fout << endl;
