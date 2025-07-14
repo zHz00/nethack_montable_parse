@@ -556,14 +556,24 @@ bool no_attk(struct attack a)
     return false;
 }
 
-static bool ranged_attk(struct permonst *ptr)
+/* returns True if monster can attack at range */
+boolean
+ranged_attk(struct permonst *ptr)
 {
-    register int i, j;
-    register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
+    register int i, atyp;
+    long atk_mask = (1L << AT_BREA) | (1L << AT_SPIT) | (1L << AT_GAZE);
 
+    /* was: (attacktype(ptr, AT_BREA) || attacktype(ptr, AT_WEAP)
+     *       || attacktype(ptr, AT_SPIT) || attacktype(ptr, AT_GAZE)
+     *       || attacktype(ptr, AT_MAGC));
+     * but that's too slow -dlc
+     */
     for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP
-            || (j < 32 && (atk_mask & (1 << j)) != 0))
+        atyp = ptr->mattk[i].aatyp;
+        if (atyp >= AT_WEAP)
+            return true;
+        /* assert(atyp < 32); */
+        if ((atk_mask & (1L << atyp)) != 0L)
             return true;
     }
     return false;

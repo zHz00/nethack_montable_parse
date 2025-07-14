@@ -667,16 +667,18 @@ bool no_attk(struct attack a)
     return false;
 }
 
+#define DISTANCE_ATTK_TYPE(atyp) ((atyp) == AT_SPIT \
+                                  || (atyp) == AT_BREA \
+                                  || (atyp) == AT_MAGC \
+                                  || (atyp) == AT_GAZE)
+
 static bool ranged_attk(struct permonst *ptr)
 {
-    register int i, j;
-    register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
+    int i;
 
-    for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP
-            || (j < 32 && (atk_mask & (1 << j)) != 0))
+    for (i = 0; i < NATTK; i++)
+        if (DISTANCE_ATTK_TYPE(ptr->mattk[i].aatyp))
             return true;
-    }
     return false;
 }
 

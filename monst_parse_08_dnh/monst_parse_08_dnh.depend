@@ -143,3 +143,45 @@
 
 1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\macromagic.h
 
+1752523296 source:c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\config.h
+
+1752417163 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\monsym.h
+
+1751828289 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1752417163 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\align.h
+
+1751828289 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\monattk.h
+
+1751828289 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\monflag.h
+
+1752417163 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\color.h
+	<regex.h>
+
+1751828289 source:c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"dungeon.h"
+	"macromagic.h"
+	"color.h"
+
+1751828289 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\dungeon.h
+
+1751828289 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\macromagic.h
+

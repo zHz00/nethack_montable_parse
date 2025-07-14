@@ -638,14 +638,22 @@ bool no_attk(struct attack a)
     return false;
 }
 
+#define ERAC(mon) ((mon)->mextra->erac)
+#define has_erac(mon) ((mon)->mextra && ERAC(mon))
+
 static bool ranged_attk(struct permonst *ptr)
 {
-    register int i, j;
+    register int i, j,atyp;
     register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
+    struct attack *mattk;
+    mattk = ptr->mattk;
 
     for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP
-            || (j < 32 && (atk_mask & (1 << j)) != 0))
+        atyp = mattk[i].aatyp;
+        if (atyp >= AT_WEAP)
+            return true;
+        /* assert(atyp < 32); */
+        if ((atk_mask & (1L << atyp)) != 0L)
             return true;
     }
     return false;

@@ -575,13 +575,18 @@ bool no_attk(struct attack a)
 
 static bool ranged_attk(struct permonst *ptr)
 {
-    register int i, j;
+    register int i, j,atyp;
     register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
 
     for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP
-            || (j < 32 && (atk_mask & (1 << j)) != 0))
+        atyp = ptr->mattk[i].aatyp;
+        if (atyp >= AT_WEAP) {
             return true;
+        }
+        /* assert(atyp < 32); */
+        if ((atk_mask & (1L << atyp)) != 0L) {
+            return true;
+        }
     }
     return false;
 }

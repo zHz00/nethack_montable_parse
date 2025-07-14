@@ -789,7 +789,7 @@ char *get_prob(struct permonst *m,char *resist)
         d=1.0;
 
     }
-    if(strcmp(resist,"Displaced")==0)
+    if(strcmp(resist,"Displacement")==0)
     {
         if(strcmp(m->mname,"shimmering dragon")==0)
         {
@@ -814,7 +814,7 @@ skip:
         prob*=100.0;
         if(prob>100.0)
             prob=100.0;
-        if(strcmp(resist,"Displaced")==0)
+        if(strcmp(resist,"Displacement")==0)
             sprintf(res,"%s=%2.0f;T%d",resist,prob,duration);
         else
             sprintf(res,"%s=%2.0f",resist,prob);
@@ -985,13 +985,17 @@ bool no_attk(struct attack a)
 
 static bool ranged_attk(struct permonst *ptr)
 {
-    register int i, j;
-    register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
+    register int i, j, atyp;
+	long long atk_mask = (1LL << AT_BREA) | (1LL << AT_BRSH) | (1LL << AT_SPIT)
+					| (1LL << AT_GAZE) | (1LL << AT_LRCH) | (1LL << AT_LNCK)
+					| (1LL << AT_MMGC) | (1LL << AT_TNKR) | (1LL << AT_ARRW)
+					| (1LL << AT_BEAM) | (1LL << AT_5SQR) | (1LL << AT_5SBT);
 
     for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP
-            || (j < 32 && (atk_mask & (1 << j)) != 0))
-            return true;
+	    atyp = ptr->mattk[i].aatyp;
+	    if (atyp >= AT_WEAP) return true;
+	 /* assert(atyp < 32); */
+	    if ((atk_mask & (1LL << atyp)) != 0L) return true;
     }
     return false;
 }
@@ -1326,7 +1330,7 @@ int main()
             if(flag_found==true)
                 fout<<"|";
             flag_found=true;
-            fout<<get_prob(&(mons[x]),"Displace");
+            fout<<get_prob(&(mons[x]),"Displacement");
         }
 
         fout<<",";
