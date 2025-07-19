@@ -17,5 +17,7 @@ typedef struct nhcoord {
 #define KOPS
 #define SEDUCE
 #define TOURIST
+#define CONVICT
+#define BARD
 #define MAXNROFROOMS	40	/* max number of rooms per level */
 #define NATTK_DEFAULT 6//dNetHack have other N, but we need to preserve old columns in csv

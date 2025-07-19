@@ -31,3 +31,36 @@
 
 1732381452 c:\users\zhz\nethack-montable\monst_parse\color.h
 
+1752778882 source:c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"weight.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+	"monsters.h"
+
+1752714244 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\weight.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\monsym.h
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\permonst.h
+	"monsters.h"
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\monsters.h
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\align.h
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\monattk.h
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\monflag.h
+
+1752770898 c:\users\user\documents\nethack_montable_parse\monst_parse_03_nh370\color.h
+

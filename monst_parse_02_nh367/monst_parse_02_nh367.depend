@@ -66,3 +66,38 @@
 	"permonst.h"
 	"color.h"
 
+1752771095 source:c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\config.h
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\monsym.h
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\align.h
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\monattk.h
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\monflag.h
+
+1752771038 c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\color.h
+
+1752771038 source:c:\users\user\documents\nethack_montable_parse\monst_parse_02_nh367\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"color.h"
+

@@ -9,6 +9,7 @@ using namespace std;
 #include "config.h"
 #include "monsym.h"
 #include "permonst.h"
+#include "wards.h"
 
 #define NO_ATTK    \
     {              \
@@ -28,6 +29,26 @@ using namespace std;
 #else
 #define C(color)
 #endif
+
+char domestic[][40]={
+    "little dog",
+    "dog",
+    "large dog",
+    "kitten",
+    "housecat",
+    "large cat",
+    ""
+};
+
+char lizard[][40]={
+    "lizard",
+    "baby cave lizard",
+    "small cave lizard",
+    "cave lizard",
+    "large cave lizard",
+    ""
+};
+
 
 char mlet_s[][65]={
     "",
@@ -186,6 +207,7 @@ struct dict_s fmm_s[]=//flags1->flagsm (motility)
 {"M1_WEBRIP",0x00010000L},//MM_WEBRIP
 {"M1_DOORBUST",0x00020000L},//MM_DOORBUST,
 {"M1_AQUATIC",0x00040000L},//MM_AQUATIC
+{"M3_DUMMY",0x08000000L},//this is mistake in Aglaope description, MT_BOLD went to MM flag
 
 
 {"",0}
@@ -746,6 +768,7 @@ struct dict_s ad_s[]=
 {"",0}
 };
 
+
 char *get_prob(struct permonst *m,char *resist)
 {
     static char res[80];
@@ -1128,7 +1151,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"dNetHack 3.24.0,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13
@@ -1139,9 +1162,16 @@ int main()
     fout<<"diff2,exp,conveyed_prob"<<endl;
     //     31    32  33
 
-
     while(mons[x].mname[0]!='\0')
     {
+        mons[x].mtyp=x;
+        x++;
+    }
+    x=0;
+    while(mons[x].mname[0]!='\0')
+    {
+        if(x==22)
+            bit=7;
         ///* 0*/fout << x << ",";
         fout << ",";//we ignore index bc it has no purpose
         //* 1*/fout << def_monsyms[mons[x].mlet].sym << ",";
@@ -1274,9 +1304,127 @@ int main()
         fout<<",";
         /* 26 -- color */
         fout<<int(mons[x].mcolor)<<",";
-        /* 27 -- skip */
-        fout<<"-,";
-        /* 28 -- skip */
+        /* 27 -- conveyed special */
+        if(strcmp(mons[x].mname,"newt")==0)//eye of newt
+            fout<<"PW=100;100;1|";
+        if(strcmp(mons[x].mname,"aoa droplet")==0)//eye of newt
+            fout<<"PW=100;66;4|";
+        if(strcmp(mons[x].mname,"aoa")==0)//eye of newt
+            fout<<"PW=100;66;10|";
+
+        if(strcmp(mons[x].mname,"wraith")==0||strcmp(mons[x].mname,"deep dragon")==0)
+            fout<<"LEVELUP=100|";
+        if(strcmp(mons[x].mname,"nurse")==0)
+            fout<<"HEAL=100|";
+        if(strcmp(mons[x].mname,"beholder")==0)
+            fout<<"CLAIRVOYANCE=100|";
+        if(strcmp(mons[x].mname,"stalker")==0)
+            fout<<"INVIS=100|SEE_INVIS=100|";
+        if(strcmp(mons[x].mname,"quantum mechanic")==0)
+            fout<<"TOGGLE=100|";
+        int y=0;
+        do{
+            if(strcmp(mons[x].mname,lizard[y])==0)
+            {
+
+                fout<<"UNCONF=100|UNSTONE=100|";
+                break;
+            }
+            y+=1;
+        }while(lizard[y][0]!='\0');
+        if(mons[x].mflagsb&MB_ACID)
+            fout<<"UNSTONE=100|";
+        if(strcmp(mons[x].mname,"mandrake")==0)
+            fout<<"UNCONF=100|UNSTONE=100|HEAL_DISEASE=100|";
+
+        if(strcmp(mons[x].mname,"chameleon")==0||strcmp(mons[x].mname,"doppelganger")==0)
+            fout<<"POLYSELF=100|";
+        if(strcmp(mons[x].mname,"mind flayer")==0||
+           strcmp(mons[x].mname,"master mind flayer")==0||
+           strcmp(mons[x].mname,"fungal brain")==0)
+            fout<<"GAIN_IN=50|";
+        if(mons[x].mflagsa&MA_GIANT)
+            fout<<"GAIN_ST=100|";
+        if(strcmp(mons[x].mname,"gug")==0)
+            fout<<"GAIN_ST=100|";
+        fout<<"-,";//we leave finalizing |. it's okay
+        /* 28 -- eat danger */
+        //fout<<"-,";
+        if(strcmp(mons[x].mname,"wererat")==0||
+           strcmp(mons[x].mname,"werejackal")==0||
+           strcmp(mons[x].mname,"werewolf")==0||
+           strcmp(mons[x].mname,"anubite")==0)
+            fout<<"LYCANTROPY=100|";
+        if(strcmp(mons[x].mname,"stalker")==0||
+           strcmp(mons[x].mname,"yellow light")==0||
+           strcmp(mons[x].mname,"bat")==0||
+           strcmp(mons[x].mname,"giant bat")==0)
+            fout<<"STUN=100|";
+        if(strcmp(mons[x].mname,"small mimic")==0||
+           strcmp(mons[x].mname,"large mimic")==0||
+           strcmp(mons[x].mname,"giant mimic")==0)
+            fout<<"MIMIC=100|";
+        if(mons[x].mflagsb&MB_HALUC)
+            fout<<"HALLU=100|";
+        if(strcmp(mons[x].mname,"mandrake")==0)
+            fout<<"HALLU=100|";
+        if(strcmp(mons[x].mname,"chickatrice")==0||
+           strcmp(mons[x].mname,"cockatrice")==0||
+           strcmp(mons[x].mname,"Medusa")==0)
+            fout<<"PETRIFY=100|";
+        y=0;
+        do{
+            if(strcmp(mons[x].mname,domestic[y])==0)
+            {
+
+                fout<<"AGGRAVATE=100|";
+                break;
+            }
+            y+=1;
+        }while(domestic[y][0]!='\0');
+
+        if(mons[x].mflagsg&MG_RIDER)
+            fout<<"REVIVE=100|";
+        if(mons[x].mflagsg&MG_DEADLY)
+            fout<<"FATAL=100|";
+
+
+        if(strcmp(mons[x].mname,"green slime")==0||strcmp(mons[x].mname,"flux slime")==0)
+            fout<<"SLIME=100|";
+        if(strcmp(mons[x].mname,"sewer rat")==0)
+            fout<<"VOMIT=100|";
+        if(strcmp(mons[x].mname,"rabid rat")==0)
+            fout<<"ILL=100|";
+
+        if(mons[x].mflagsb&MB_ACID)
+            fout<<"ACID=100|";
+        if(mons[x].mflagsb&MB_POIS)
+            fout<<"POISON=100|";
+        if(mons[x].mflagsb&MB_TOSTY)
+            fout<<"HOT=100|";
+        if(mons[x].mflagsb&MB_CHILL)
+            fout<<"COLD=100|";
+        int test=strcmp(mons[x].mname,"small goat spawn");
+        int z=0;
+        if(test==0)
+            z=15;
+        if((mons[x].mflagst&MT_MINDLESS)||(mons[x].mflagst&MT_ANIMAL))
+            goto not_cannibal;
+        if(mons[x].mflagsa&MA_HUMAN)
+            fout<<"HUMAN=100|";
+        if(mons[x].mflagsa&MA_ELF)
+            fout<<"ELF=100|";
+        if(mons[x].mflagsa&MA_DWARF)
+            fout<<"DWARF=100|";
+        if(mons[x].mflagsa&MA_GNOME)
+            fout<<"GNOME=100|";
+        if(mons[x].mflagsa&MA_FEY)
+            fout<<"FAIRY=100|";
+        if(mons[x].mflagsa&MA_DRAGON)
+            fout<<"DRAGON=100|";
+        if(mons[x].mflagsa&MA_ANIMAL)
+            fout<<"ANIMAL=100|";
+not_cannibal:
         fout<<"-,";
         /* 29 -- skip */
         fout<<"-,";
@@ -1388,7 +1536,8 @@ int main()
         //53 -- insight
         fout<<(int)(G_C_INST(mons[x].geno))<<",";
         //54 -- light radius
-        fout<<(int)mons[x].light_radius;
+        fout<<(int)mons[x].light_radius<<",";
+        fout<<check_wards_list(&(mons[x]));
 
 
         fout << endl;

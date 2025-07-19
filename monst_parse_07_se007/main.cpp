@@ -29,6 +29,35 @@ using namespace std;
 #define C(color)
 #endif
 
+char domestic[][40]={
+    "little dog",
+    "dog",
+    "large dog",
+    "kitten",
+    "housecat",
+    "large cat",
+    ""
+};
+
+char were[][40]={
+    "werewolf",
+    "werejackal",
+    "wererat",
+    "werepanther",
+    "werespider",
+    "weretiger",
+    "weresnake",
+    ""
+};
+
+char petrify[][40]={
+    "chickatrice",
+    "cockatrice",
+    "Medusa",
+    "basilisk",
+    "asphynx"
+};
+
 char mlet_s[][40]={
     "",
     "S_ANT",
@@ -664,7 +693,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"SLASH'EM 0.0.7E7F3,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13
@@ -829,10 +858,106 @@ int main()
         fout<<",";
         /* 26 -- color */
         fout<<int(mons[x].mcolor)<<",";
-        /* 27 -- skip */
+        /* 27 -- conveyed special */
+        if(strcmp(mons[x].mname,"newt")==0)//eye of newt
+            fout<<"PW=66;22;1|";
+        if(strcmp(mons[x].mname,"wraith")==0)//eye of newt
+            fout<<"LEVELUP=50|";
+        if(strcmp(mons[x].mname,"nurse")==0)
+            fout<<"HEAL=100|";
+        if(strcmp(mons[x].mname,"stalker")==0)
+            fout<<"INVIS=100|SEE_INVIS=100|";
+        if(strcmp(mons[x].mname,"quantum mechanic")==0)
+            fout<<"TOGGLE=100|";
+        if(strcmp(mons[x].mname,"lizard")==0)
+            fout<<"UNCONF=100|UNSTONE=100|";
+        if(mons[x].mflags1&M1_ACID)
+            fout<<"UNSTONE=100|";
+        if(strcmp(mons[x].mname,"chameleon")==0||
+           strcmp(mons[x].mname,"doppelganger")==0||
+           strcmp(mons[x].mname,"genetic engineer")==0)
+            fout<<"POLYSELF=100|";
+        if(strcmp(mons[x].mname,"mind flayer")==0||
+           strcmp(mons[x].mname,"master mind flayer")==0)
+            fout<<"GAIN_IN=50|";
+        if(mons[x].mflags2&M2_GIANT)
+            fout<<"GAIN_ST=25|";
+        fout<<"-,";//we leave finalizing |. it's okay
+        /* 28 -- eat danger */
+        //fout<<"-,";
+        int y=0;
+        do{
+            if(strcmp(mons[x].mname,were[y])==0)
+            {
+
+                fout<<"LYCANTROPY=100|";
+                break;
+            }
+            y+=1;
+        }while(were[y][0]!='\0');
+        if(strcmp(mons[x].mname,"stalker")==0||
+           strcmp(mons[x].mname,"yellow light")==0||
+           strcmp(mons[x].mname,"bat")==0||
+           strcmp(mons[x].mname,"giant bat")==0)
+            fout<<"STUN=100|";
+        if(strcmp(mons[x].mname,"small mimic")==0||
+           strcmp(mons[x].mname,"large mimic")==0||
+           strcmp(mons[x].mname,"giant mimic")==0)
+            fout<<"MIMIC=100|";
+        if(strcmp(mons[x].mname,"violet fungus")==0)
+            fout<<"HALLU=100|";
+        for(int y=0;y<NATTK;y++)
+            if(mons[x].mattk[y].adtyp==AD_STUN||
+               mons[x].mattk[y].adtyp==AD_HALU)
+                {
+                    fout<<"HALLU=100|";
+                    break;
+                }
+        y=0;
+        do{
+            if(strcmp(mons[x].mname,petrify[y])==0)
+            {
+
+                fout<<"PETRIFY=100|";
+                break;
+            }
+            y+=1;
+        }while(petrify[y][0]!='\0');
+        y=0;
+        do{
+            if(strcmp(mons[x].mname,domestic[y])==0)
+            {
+
+                fout<<"AGGRAVATE=100|";
+                break;
+            }
+            y+=1;
+        }while(domestic[y][0]!='\0');
+
+        if(strcmp(mons[x].mname,"Death")==0||
+           strcmp(mons[x].mname,"Pestilence")==0||
+           strcmp(mons[x].mname,"Famine")==0)
+            fout<<"FATAL=100|REVIVE=100|";
+
+        if(strcmp(mons[x].mname,"green slime")==0)
+            fout<<"SLIME=100|";
+
+        if(mons[x].mflags1&M1_ACID)
+            fout<<"ACID=100|";
+        if(mons[x].mflags1&M1_POIS)
+            fout<<"POISON=100|";
+        if(mons[x].mflags2&M2_HUMAN)
+            fout<<"HUMAN=100|";
+        if(mons[x].mflags2&M2_ELF)
+            fout<<"ELF=100|";
+        if(mons[x].mflags2&M2_DWARF)
+            fout<<"DWARF=100|";
+        if(mons[x].mflags2&M2_GNOME)
+            fout<<"GNOME=100|";
+        if(mons[x].mflags2&M2_HOBBIT)
+            fout<<"HOBBIT=100|";
         fout<<"-,";
-        /* 28 -- skip */
-        fout<<"-,";
+
         /* 29 -- skip */
         fout<<"-,";
         /* 30*/

@@ -139,3 +139,53 @@
 
 1167484111 c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\egyp.h
 
+1752684210 source:c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\config.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\monsym.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\align.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\monattk.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\monflag.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\color.h
+
+1752262235 source:c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"dungeon.h"
+	"eshk.h"
+	"vault.h"
+	"epri.h"
+	"egyp.h"
+	"color.h"
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\dungeon.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\eshk.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\vault.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\epri.h
+
+1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\egyp.h
+

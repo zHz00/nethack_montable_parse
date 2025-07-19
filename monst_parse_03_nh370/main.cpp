@@ -37,6 +37,16 @@ typedef unsigned char boolean;
 #define C(color)
 #endif
 
+char domestic[][40]={
+    "little dog",
+    "dog",
+    "large dog",
+    "kitten",
+    "housecat",
+    "large cat",
+    ""
+};
+
 char mlet_s[][40]={
     "",
     "S_ANT",
@@ -758,7 +768,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"index,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"\"NetHack 3.7.0 (f58b7a8,2025/07/17)\",namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13
@@ -925,9 +935,101 @@ int main()
         fout<<",";
         /* 26 -- color */
         fout<<int(mons[x].mcolor)<<",";
-        /* 27 -- skip */
-        fout<<"-,";
-        /* 28 -- skip */
+        /* 27 -- conveyed special */
+        if(strcmp(mons[x].pmnames[NEUTRAL],"newt")==0)//eye of newt
+            fout<<"PW=66;22;1|";
+        for(int y=0;y<NATTK;y++)
+            if(mons[x].mattk[y].aatyp==AT_MAGC)
+                {
+                    fout<<"PW=66;22;1|";
+                    break;
+                }
+        if(strcmp(mons[x].pmnames[NEUTRAL],"wraith")==0)//eye of newt
+            fout<<"LEVELUP=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"nurse")==0)
+            fout<<"HEAL=100|UNBLIND=100";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"stalker")==0)
+            fout<<"INVIS=100|SEE_INVIS=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"quantum mechanic")==0)
+            fout<<"TOGGLE=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"lizard")==0)
+            fout<<"UNCONF=100|UNSTONE=100|";
+        if(mons[x].mflags1&M1_ACID)
+            fout<<"UNSTONE=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"displacer beast")==0)
+            fout<<"DISPLACEMENT=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"chameleon")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"sandestin")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"genetic engineer")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"doppelganger")==0)
+            fout<<"POLYSELF=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"mind flayer")==0||strcmp(mons[x].pmnames[NEUTRAL],"master mind flayer")==0)
+            fout<<"GAIN_IN=50|";
+        /*if(mons[x].mflags2&M2_GIANT)//we leave this at search.py bc we don't know probability
+            fout<<"GAIN_ST=100|";*/ //an search.py must know difference between fixed an normalized probability
+        fout<<"-,";//we leave finalizing |. it's okay
+
+        /* 28 -- eat danger */
+        //fout<<"-,";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"disenchanter")==0)
+            fout<<"CURSE_ATTR=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"wererat")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"werejackal")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"werewolf")==0)
+            fout<<"LYCANTROPY=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"stalker")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"yellow light")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"bat")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"giant bat")==0)
+            fout<<"STUN=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"small mimic")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"large mimic")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"giant mimic")==0)
+            fout<<"MIMIC=100|";
+        if(strcmp(mons[x].pmnames[NEUTRAL],"violet fungus")==0)
+            fout<<"HALLU=100|";
+        for(int y=0;y<NATTK;y++)
+            if(mons[x].mattk[y].adtyp==AD_STUN||
+               mons[x].mattk[y].adtyp==AD_HALU)
+                {
+                    fout<<"HALLU=100|";
+                    break;
+                }
+        if(strcmp(mons[x].pmnames[NEUTRAL],"chickatrice")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"cockatrice")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"Medusa")==0)
+            fout<<"PETRIFY=100|";
+        int y=0;
+        do{
+            if(strcmp(mons[x].pmnames[NEUTRAL],domestic[y])==0)
+            {
+
+                fout<<"AGGRAVATE=100|";
+                break;
+            }
+            y+=1;
+        }while(domestic[y][0]!='\0');
+
+        if(strcmp(mons[x].pmnames[NEUTRAL],"Death")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"Pestilence")==0||
+           strcmp(mons[x].pmnames[NEUTRAL],"Famine")==0)
+            fout<<"FATAL=100|REVIVE=100|";
+
+        if(strcmp(mons[x].pmnames[NEUTRAL],"green slime")==0)
+            fout<<"SLIME=100|";
+
+        if(mons[x].mflags1&M1_ACID)
+            fout<<"ACID=100|";
+        if(mons[x].mflags1&M1_POIS)
+            fout<<"POISON=100|";
+        if(mons[x].mflags2&M2_HUMAN)
+            fout<<"HUMAN=100|";
+        if(mons[x].mflags2&M2_ELF)
+            fout<<"ELF=100|";
+        if(mons[x].mflags2&M2_DWARF)
+            fout<<"DWARF=100|";
+        if(mons[x].mflags2&M2_GNOME)
+            fout<<"GNOME=100|";
         fout<<"-,";
         /* 29 -- skip */
         fout<<"-,";
