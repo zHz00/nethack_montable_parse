@@ -497,6 +497,15 @@ scaryLol(int LOLTH_HIGH_POWER,struct permonst * mtmp)
 	    (is_rider(mtmp))
 	)
 		return(FALSE);
+    switch(mtmp->mtyp)
+	{
+        case PM_CHAOS:
+            return 50;
+        case PM_DEMOGORGON:
+            return 33;
+        case PM_ASMODEUS:
+            return 11;//2 min, 10% per completion
+	}
 	return (boolean)100*( (mtmp->mtyp != PM_ELDER_PRIEST) &&
 					(mtmp->mtyp != PM_GREAT_CTHULHU) &&
 					(mtmp->mtyp != PM_CHOKHMAH_SEPHIRAH) &&
@@ -509,9 +518,24 @@ scaryLol(int LOLTH_HIGH_POWER,struct permonst * mtmp)
 }
 
 boolean
+scaryYellow(complete, mtmp)
+int complete;
+struct permonst *mtmp;
+{
+	if(complete <= 0) return FALSE;
+	else if(yellowUnwardable(mtmp))
+		return FALSE;
+	if(yellowWarded(mtmp)){
+        return 254;//crazy+10%scare
+    }
+	return FALSE;
+}
+
+boolean
 scaryElb(int ELBERETH_HIGH_POWER,struct permonst *mtmp)
 {
   //if(Infuture) return FALSE;
+  ELBERETH_HIGH_POWER--;//we want 0 and 1 instead of 1 and 2
   if(ELBERETH_HIGH_POWER){
 	if (mtmp->mtyp==PM_SHOPKEEPER || mtmp->mtyp==PM_GUARD || mtmp->mtyp==PM_WIZARD_OF_YENDOR || 0/*is_blind(mtmp)*/ ||
 	    0/*mtmp->mpeaceful*/ ||		(mtmp->mlet == S_HUMAN && 1/*!mtmp->mtemplate*/) ||
@@ -551,8 +575,8 @@ scaryElb(int ELBERETH_HIGH_POWER,struct permonst *mtmp)
 }
 
 char ward_list[][40]={
-    "ELBERETH_0",
     "ELBERETH_1",
+    "ELBERETH_2",
     "LOLTH",
     "HEPTAGRAM",
     "GORGONEION",
@@ -560,6 +584,7 @@ char ward_list[][40]={
     "PENTAGRAM",
     "HEXAGRAM",
     "HAMSA",
+    "YELLOW_SIGN",
     "ELDER_SIGN_1",
     "ELDER_SIGN_6",
     "ELDER_ELEMENTAL_EYE_1",
@@ -587,6 +612,7 @@ fear_func ward_funcs[]={
     scaryPent,
     scaryHex,
     scaryHam,
+    scaryYellow,
     scarySign,
     scarySign,
     scaryEye,

@@ -856,6 +856,8 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented
                 if(flag_found==true)
                     fout<<"|";
                 fout<<search_dict(mr_s,1<<bit);
@@ -1033,6 +1035,9 @@ int main()
         {
             if(mons[x].mconveys&(1<<bit))
             {
+                if((1<<bit)==MR_STONE||(1<<bit)==MR_ACID)
+                    continue;//stone and acid resistances conveyed are not implemented
+
                 if(flag_found==true)
                     fout<<"|";
                 char *resist=search_dict(mr_s,1<<bit);
