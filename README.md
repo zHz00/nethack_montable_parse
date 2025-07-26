@@ -6,7 +6,7 @@ This is set of utilities made to generate csv-files, containing monsters propert
 
 I created a separated project for each variant, because difference in source code is too big.
 
-If you simply use External Pokedex, you don't need these projects. I already generated all neede data. But if you want to update databases or include new variant into set, you can use these projects as starting point.
+If you simply use External Pokedex, you don't need these projects. I already generated all needed data. But if you want to update databases or include new variant into set, you can use these projects as starting point.
 
 ## How to update projects
 
@@ -17,7 +17,7 @@ All projects are made in Code::Blocks using Windows EOL convention.
 3. Try to build project. If it fails, then, probably some flags or attacks was added. Examine source code and diffs.  
 4. Run project and check for errors in the output. If you see errors about "0xXXXXXXXX not found! First value is AAAA", then you must open main.cpp and find dict_s array, beginning with AAAA value. Then add new flag, attack etc., found by code 0xXXXXXXXX.  
 5. Take resulting csv file and copy it to data/ folder of NetHack External Pokedex.  
-6. Run tests, pressing F1. If you got an error, then open nhconstants_flags_raw.py and add new values to corresponding dicts. Also, add these values to dicts in nhconstants_atk.py and/or nhconstants_flags.py. You myst think by yourself, how to modify these files. New flags must go to the correct category of flags.
+6. Run tests, pressing F1. If you got an error, then open nhconstants_flags_raw.py and add new values to corresponding dicts. Also, add these values to dicts in nhconstants_atk.py and/or nhconstants_flags.py. You must think by yourself, how to modify these files. New flags must go to the correct category of flags.
 
 ## How to add new variant
 
