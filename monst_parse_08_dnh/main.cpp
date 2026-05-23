@@ -246,6 +246,7 @@ struct dict_s fmb_s[]=//flags1->flagsb (body plan)
 {"M1_NOGLOVES",0x08000000L},
 {"M1_NOHAT",0x10000000L},
 {"M1_SKELETAL",0x20000000L},//MB_SKELETAL
+{"M1_ORGANIC",0x40000000L},//MB_ORGANIC
 //#define MB_SNAKELEG	(MB_HUMANOID|MB_SLITHY)
 //#define MB_CENTAUR	(MB_HUMANOID|MB_ANIMAL)
 {"",0}
@@ -576,6 +577,7 @@ struct dict_s at_s[]=
 {"AT_TAIL",44},
 {"AT_TONG",45},
 {"AT_VOMT",46},
+{"AT_JUGL",47},
 {"AT_WEAP",252},
 {"AT_XWEP",253},
 {"AT_MARI",254},
@@ -738,32 +740,46 @@ struct dict_s ad_s[]=
 {"AD_FATK",155},
 {"AD_DRHP",156},
 {"AD_PUSH",157},
-{"AD_FATK",158},
-{"AD_FATK",159},
-{"AD_FATK",160},
+{"AD_LICK",158},
+{"AD_PFBT",159},
+{"AD_OMUD",160},
+{"AD_PSH3",161},
+{"AD_BLED",162},
+{"AD_UHCD",163},
+{"AD_GMLD",164},
+{"AD_SONC",165},
+/*
+#define AD_LICK		158 /* Pull target, immobalize target, cold touch, acid touch * /
+#define AD_PFBT		159 /* rot and poison damage * /
+#define AD_OMUD		160 /* Acid and stab with bone daggers * /
+#define AD_PSH3		161 /* Push target away 1d3 squares * /
+#define AD_BLED		162 /* Bleeding wounds * /
+#define AD_UHCD		163 /* Unholy cold * /
+#define AD_GMLD		164 /* Gray mold spores * /
+#define AD_SONC		165 /* Sonic attack * /
+*/
 
+{"AD_DUNSTAN",166},
+{"AD_IRIS",167},
+{"AD_NABERIUS",168},
+{"AD_OTIAX",169},
+{"AD_SIMURGH",170},
 
-{"AD_DUNSTAN",161},
-{"AD_IRIS",162},
-{"AD_NABERIUS",163},
-{"AD_OTIAX",164},
-{"AD_SIMURGH",165},
+{"AD_CMSL",171},
+{"AD_FMSL",172},
+{"AD_EMSL",173},
+{"AD_SMSL",174},
+{"AD_WMTG",175},
 
-{"AD_CMSL",166},
-{"AD_FMSL",167},
-{"AD_EMSL",168},
-{"AD_SMSL",169},
-{"AD_WMTG",170},
+{"AD_CLRC",176},
+{"AD_SPEL",177},
+{"AD_RBRE",178},
+{"AD_RGAZ",179},
+{"AD_RETR",180},
 
-{"AD_CLRC",171},
-{"AD_SPEL",172},
-{"AD_RBRE",173},
-{"AD_RGAZ",174},
-{"AD_RETR",175},
-
-{"AD_SAMU",176},
-{"AD_CURS",177},
-{"AD_SQUE",178},
+{"AD_SAMU",181},
+{"AD_CURS",182},
+{"AD_SQUE",183},
 
 {"",0}
 };

@@ -764,11 +764,11 @@ int main()
     char timeString[TIME_STR_LEN];
     std::strftime(timeString, TIME_STR_LEN,"%Y-%m-%dT%H-%M-%S", std::localtime(&time));
     char fname[120]="mondump";
-    std::sprintf(fname,"..\\mondump-%s-nh370.csv",timeString);
+    std::sprintf(fname,"..\\mondump-%s-nh500.csv",timeString);
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"\"NetHack 3.7.0 (f58b7a8,2025/07/17)\",namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"\"NetHack 5.0.0 (16ff591,2026/05/02)\",namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13

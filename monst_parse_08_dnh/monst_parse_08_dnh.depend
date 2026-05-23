@@ -101,7 +101,7 @@
 	"permonst.h"
 	"color.h"
 
-1728591221 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monst.c
+1768525537 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monst.c
 	"config.h"
 	"permonst.h"
 	"monsym.h"
@@ -109,27 +109,27 @@
 	"macromagic.h"
 	"color.h"
 
-1737575623 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\config.h
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\config.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\permonst.h
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\permonst.h
 	"align.h"
 	"monattk.h"
 	"monflag.h"
 
 1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\align.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monattk.h
+1768525537 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monattk.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monflag.h
+1768525537 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monflag.h
 
 1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monsym.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\dungeon.h
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\dungeon.h
 
 1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\color.h
 	<regex.h>
 
-1737576994 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
+1769345839 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
 	<iostream>
 	<fstream>
 	<cstdlib>
@@ -139,9 +139,10 @@
 	"config.h"
 	"monsym.h"
 	"permonst.h"
+	"wards.h"
 	"color.h"
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\macromagic.h
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\macromagic.h
 
 1752879472 source:c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\main.cpp
 	<iostream>
@@ -199,4 +200,19 @@
 1752848408 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\pm.h
 
 1752863666 c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\wards.h
+
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\wards.h
+
+1757162266 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\wards.c
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+	"config.h"
+	"monsym.h"
+	"monattk.h"
+	"permonst.h"
+	"pm.h"
+	"wards.h"
+
+1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\pm.h
 

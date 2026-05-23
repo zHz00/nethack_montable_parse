@@ -17,3 +17,4 @@ typedef struct nhcoord {
 #define KOPS
 #define SEDUCE
 #define TOURIST
+#define YEOMAN

@@ -443,7 +443,7 @@ struct dict_s ad_s[]=
 {"AD_ELEC",6},
 {"AD_DRST",7},
 {"AD_ACID",8},
-{"AD_WATR ",9},
+{"AD_WATR",9},
 {"AD_DRLI",10},
 {"AD_STUN",11},
 {"AD_SPC1",12},
