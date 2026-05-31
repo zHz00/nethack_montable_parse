@@ -16,6 +16,7 @@ typedef unsigned char boolean;
 //#include "config.h"
 #include "monsym.h"
 #include "permonst.h"
+#include "weight.h"
 
 #define NO_ATTK    \
     {              \
@@ -796,7 +797,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"xNetHack 9.0,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"xNetHack 9.1,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13

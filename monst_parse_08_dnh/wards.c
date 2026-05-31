@@ -40,6 +40,8 @@ int dtyp;
 #define rn2(x) 0
 #define d(x,y) 1
 
+/* These macros were taken from mondata.h*/
+
 #define is_primordial(ptr)	(((ptr)->mflagsa & MA_PRIMORDIAL) != 0L)
 
 #define is_were(ptr)		(((ptr)->mflagsa & MA_WERE) != 0L)
@@ -235,6 +237,8 @@ int dtyp;
 #define	yellowWarded(data)	(!heptWarded(data) && !is_undead(data) && !is_were(data) && !is_primordial(data) )
 
 #define catWardInactive FALSE
+
+/*These function was taket from monmove.c*/
 
 
 boolean

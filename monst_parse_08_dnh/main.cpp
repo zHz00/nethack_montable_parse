@@ -162,6 +162,21 @@ struct dict_s fmw_s[]=
 {"M4_ELDER_EYE_PLANES",0x10},
 {"",0}
 };
+struct dict_s fmc_s[]=
+{
+{"M1_UNSOLID",0x01},
+{"M1_ACID",0x02},
+{"M1_POIS",0x04},
+{"M1_CHILL",0x08},
+{"M1_TOSTY",0x10},
+{"M1_HALUC",0x20},
+{"M1_INDIGESTIBLE",0x40},
+{"M1_INSUBSTANTIAL",0x80},
+{"M1_SKELETAL",0x100},
+{"M1_ORGANIC",0x200},
+{"M1_THICK_HIDE",0x400},
+{"",0}
+};
 
 struct dict_s mr_s[]=
 {{"MR_FIRE",0x01},
@@ -223,30 +238,20 @@ struct dict_s fmb_s[]=//flags1->flagsb (body plan)
 {"M1_HUMANOID",0x00000010L},
 {"M1_ANIMAL",0x00000020L},//CAUTION! animal both in MB_ANIMAL and MT_ANIMAL!
 {"M1_SLITHY",0x00000040L},
-{"M1_UNSOLID",0x00000080L},
-{"M1_THICK_HIDE",0x00000100L},
-{"M1_OVIPAROUS",0x00000200L},
-{"M1_ACID",0x00000400L},
-{"M1_POIS",0x00000800L},
-{"M1_CHILL",0x00001000L},
-{"M1_TOSTY",0x00002000L},
-{"M1_HALUC",0x00004000L},
-{"M2_MALE",0x00008000L},
-{"M2_FEMALE",0x00010000L},
-{"M2_NEUTER",0x00020000L},
-{"M2_STRONG",0x00040000L},
-{"M1_WINGS",0x00080000L},
-{"M1_LONGHEAD",0x00100000L},
-{"M1_LONGNECK",0x00200000L},
-{"M1_NOFEET",0x00400000L},
-{"M1_HAS_FEET",0x00800000L},
-{"M1_CAN_AMULET",0x01000000L},
-{"M1_INDIGESTIBLE",0x02000000L},
-{"M1_INSUBSTANTIAL",0x04000000L},
-{"M1_NOGLOVES",0x08000000L},
-{"M1_NOHAT",0x10000000L},
-{"M1_SKELETAL",0x20000000L},//MB_SKELETAL
-{"M1_ORGANIC",0x40000000L},//MB_ORGANIC
+{"M1_OVIPAROUS",0x00000080L},
+{"M2_MALE",0x00000100L},
+{"M2_FEMALE",0x00000200L},
+{"M2_NEUTER",0x00000400L},
+{"M2_STRONG",0x00000800L},
+{"M1_WINGS",0x00001000L},
+{"M1_LONGHEAD",0x00002000L},
+{"M1_LONGNECK",0x00004000L},
+{"M1_NOFEET",0x00008000L},
+{"M1_HAS_FEET",0x00010000L},
+{"M1_CAN_AMULET",0x00020000L},
+{"M1_NOGLOVES",0x00040000L},
+{"M1_NOHAT",0x00080000L},
+{"M1_HORNS",0x00100000L},//MB_HORNS
 //#define MB_SNAKELEG	(MB_HUMANOID|MB_SLITHY)
 //#define MB_CENTAUR	(MB_HUMANOID|MB_ANIMAL)
 {"",0}
@@ -748,6 +753,8 @@ struct dict_s ad_s[]=
 {"AD_UHCD",163},
 {"AD_GMLD",164},
 {"AD_SONC",165},
+{"AD_SMOK",166},
+{"AD_SLWC",167},
 /*
 #define AD_LICK		158 /* Pull target, immobalize target, cold touch, acid touch * /
 #define AD_PFBT		159 /* rot and poison damage * /
@@ -759,27 +766,27 @@ struct dict_s ad_s[]=
 #define AD_SONC		165 /* Sonic attack * /
 */
 
-{"AD_DUNSTAN",166},
-{"AD_IRIS",167},
-{"AD_NABERIUS",168},
-{"AD_OTIAX",169},
-{"AD_SIMURGH",170},
+{"AD_DUNSTAN",168},
+{"AD_IRIS",169},
+{"AD_NABERIUS",170},
+{"AD_OTIAX",171},
+{"AD_SIMURGH",172},
 
-{"AD_CMSL",171},
-{"AD_FMSL",172},
-{"AD_EMSL",173},
-{"AD_SMSL",174},
-{"AD_WMTG",175},
+{"AD_CMSL",173},
+{"AD_FMSL",174},
+{"AD_EMSL",175},
+{"AD_SMSL",176},
+{"AD_WMTG",177},
 
-{"AD_CLRC",176},
-{"AD_SPEL",177},
-{"AD_RBRE",178},
-{"AD_RGAZ",179},
-{"AD_RETR",180},
+{"AD_CLRC",178},
+{"AD_SPEL",179},
+{"AD_RBRE",180},
+{"AD_RGAZ",181},
+{"AD_RETR",182},
 
-{"AD_SAMU",181},
-{"AD_CURS",182},
-{"AD_SQUE",183},
+{"AD_SAMU",183},
+{"AD_CURS",184},
+{"AD_SQUE",185},
 
 {"",0}
 };
@@ -963,6 +970,7 @@ char *convert_dnh_flags(int flags_n,struct permonst *mon)
         fmg_s,//game mechanics
         fma_s,//race
         fmw_s,
+        fmc_s,//"composition"
         NULL//wards
     };
     unsigned long real_flags[]=
@@ -974,7 +982,8 @@ char *convert_dnh_flags(int flags_n,struct permonst *mon)
         mon->mflagsv,
         mon->mflagsg,
         mon->mflagsa,
-        mon->mflagsw
+        mon->mflagsw,
+        mon->mflagsc
     };
 
     char *flag_name=NULL;
@@ -1167,7 +1176,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"dNetHack 3.24.0,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"dNetHack 3.26.0,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13
@@ -1348,7 +1357,7 @@ int main()
             }
             y+=1;
         }while(lizard[y][0]!='\0');
-        if(mons[x].mflagsb&MB_ACID)
+        if(mons[x].mflagsc&MC_ACID)
             fout<<"UNSTONE=100|";
         if(strcmp(mons[x].mname,"mandrake")==0)
             fout<<"UNCONF=100|UNSTONE=100|HEAL_DISEASE=100|";
@@ -1380,7 +1389,7 @@ int main()
            strcmp(mons[x].mname,"large mimic")==0||
            strcmp(mons[x].mname,"giant mimic")==0)
             fout<<"MIMIC=100|";
-        if(mons[x].mflagsb&MB_HALUC)
+        if(mons[x].mflagsc&MC_HALUC)
             fout<<"HALLU=100|";
         if(strcmp(mons[x].mname,"mandrake")==0)
             fout<<"HALLU=100|";
@@ -1412,13 +1421,13 @@ int main()
         if(strcmp(mons[x].mname,"rabid rat")==0)
             fout<<"ILL=100|";
 
-        if(mons[x].mflagsb&MB_ACID)
+        if(mons[x].mflagsc&MC_ACID)
             fout<<"ACID=100|";
-        if(mons[x].mflagsb&MB_POIS)
+        if(mons[x].mflagsc&MC_POIS)
             fout<<"POISON=100|";
-        if(mons[x].mflagsb&MB_TOSTY)
+        if(mons[x].mflagsc&MC_TOSTY)
             fout<<"HOT=100|";
-        if(mons[x].mflagsb&MB_CHILL)
+        if(mons[x].mflagsc&MC_CHILL)
             fout<<"COLD=100|";
         int test=strcmp(mons[x].mname,"small goat spawn");
         int z=0;

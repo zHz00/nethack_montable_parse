@@ -101,7 +101,7 @@
 	"permonst.h"
 	"color.h"
 
-1768525537 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monst.c
+1779546944 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monst.c
 	"config.h"
 	"permonst.h"
 	"monsym.h"
@@ -111,25 +111,25 @@
 
 1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\config.h
 
-1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\permonst.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\permonst.h
 	"align.h"
 	"monattk.h"
 	"monflag.h"
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\align.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\align.h
 
-1768525537 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monattk.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monattk.h
 
-1768525537 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monflag.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monflag.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monsym.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\monsym.h
 
-1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\dungeon.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\dungeon.h
 
-1728591221 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\color.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\color.h
 	<regex.h>
 
-1769345839 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
+1779580699 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
 	<iostream>
 	<fstream>
 	<cstdlib>
@@ -142,7 +142,7 @@
 	"wards.h"
 	"color.h"
 
-1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\macromagic.h
+1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\macromagic.h
 
 1752879472 source:c:\users\user\documents\nethack_montable_parse\monst_parse_08_dnh\main.cpp
 	<iostream>
@@ -214,5 +214,5 @@
 	"pm.h"
 	"wards.h"
 
-1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\pm.h
+1779579398 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\pm.h
 
