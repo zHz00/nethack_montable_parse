@@ -29,6 +29,30 @@ using namespace std;
 #define C(color)
 #endif
 
+#define is_were(ptr)		(((ptr)->mflags2 & M2_WERE) != 0L)
+#define is_vampire(ptr)		(((ptr)->mflags2 & M2_VAMPIRE) != 0L)
+#define is_demon(ptr)		(((ptr)->mflags2 & M2_DEMON) != 0L)
+#define is_undead(ptr)		(((ptr)->mflags2 & M2_UNDEAD) != 0L)
+#define hates_silver(ptr)	(is_were(ptr) || is_vampire(ptr) || \
+				 is_demon(ptr) || strcmp((ptr)->mname,"shade")==0 || \
+				 ((ptr)->mlet==S_IMP && strcmp((ptr)->mname,"tengu")!=0))
+
+#define is_flyer(ptr)		(((ptr)->mflags1 & M1_FLY) != 0L)
+
+#define passes_walls(ptr)	(((ptr)->mflags1 & M1_WALLWALK) != 0L)
+#define is_wooden(ptr)		(strcmp((ptr)->mname,"wood golem")==0)
+#define thick_skinned(ptr)	(((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
+
+#define made_of_rock(ptr)	((passes_walls(ptr) && thick_skinned(ptr)) || \
+				 strcmp((ptr)->mname,"stone golem")==0 || \
+				 (strcmp((ptr)->mname,"statue gargoyle")==0))
+
+boolean
+hates_blessings(struct permonst *ptr)
+{
+    return (boolean) (is_undead(ptr) || is_demon(ptr));
+}
+
 char domestic[][40]={
     "little dog",
     "dog",
@@ -1005,6 +1029,64 @@ int main()
             flag_found=true;
             fout<<get_prob(&(mons[x]),"Telepathy");
         }
+        fout<<",";
+        // 34 -- flags4
+        if(hates_silver(&(mons[x])))
+        {
+            fout<<"M4_HATESSILVER|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_blessings(&(mons[x])))
+        {
+            fout<<"M4_HATESHOLY|";//this is dNetHack flag which is convenient in any version
+        }
+
+        if(is_wooden(&(mons[x])))
+        {
+            fout<<"M4_HATESAXE|";//this is dNetHack flag which is convenient in any version
+        }
+
+        if(mons[x].mlet==S_WORM||mons[x].mlet==S_JELLY)
+        {
+            fout<<"M4_HATESSLASH|";//this is dNetHack flag which is convenient in any version
+        }
+        if(mons[x].mlet==S_BLOB)
+        {
+            fout<<"M4_HATESPIERCE|";//this is dNetHack flag which is convenient in any version
+        }
+        if(mons[x].mlet==S_ANT||mons[x].mlet==S_SPIDER||mons[x].mlet==S_XAN)
+        {
+            fout<<"M4_HATESBLUNT|";//this is dNetHack flag which is convenient in any version
+        }
+        if(is_flyer(&mons[x]))
+        {
+            fout<<"M4_HATESSPEAR|M4_HATESPOLE|";//this is dNetHack flag which is convenient in any version
+        }
+        if(made_of_rock(&mons[x]))
+        {
+            fout<<"M4_HATESPICK|";//this is dNetHack flag which is convenient in any version
+        }
+
+	    /*
+	    if (is_axe(otmp) && is_wooden(ptr))
+		bonus += rnd(4);
+
+	    if((objects[otyp].oc_dir & (SLASH) ) && (ptr->mlet == S_WORM))
+			bonus += 2;
+	    /* You pierce blobs * /
+	    if((objects[otyp].oc_dir & (PIERCE) ) && (ptr->mlet == S_BLOB))
+			bonus += 2;
+	    /* You slash jellies * /
+	    if((objects[otyp].oc_dir & (SLASH) ) && (ptr->mlet == S_JELLY))
+			bonus += 2;
+	    /* concussion damage is better agains chitinous armour * /
+	    if( (objects[otyp].oc_dir & (WHACK) ) &&
+	        (ptr->mlet == S_ANT || ptr->mlet == S_SPIDER || ptr->mlet == S_XAN))
+			bonus += 2;
+	    /* flyers can better be reached with a polearm * /
+	    if( (is_pole(otmp) || is_spear(otmp) ) && is_flyer(ptr) )
+			bonus += 2;
+	    if (is_pick(otmp) && made_of_rock(ptr) )
+			bonus += 3;*/
 
         fout << endl;
 

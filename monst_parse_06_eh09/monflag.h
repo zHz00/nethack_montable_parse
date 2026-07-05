@@ -10,9 +10,9 @@
 #define MS_MEW 2        /* mews or hisses */
 #define MS_ROAR 3       /* roars */
 #define MS_GROWL 4      /* growls */
-#define MS_SQEEK 5      /* squeaks, as a rodent */
-#define MS_SQAWK 6      /* squawks, as a bird */
-#define MS_HISS 7       /* hisses */
+#define MS_SQEEK 5      /* squeaks, as a rodent (bats, woodchucks broken out) */
+#define MS_SQAWK 6      /* squawks, as a bird (raptors broken out) */
+#define MS_HISS 7       /* hisses (lizards, pseudodragons broken out) */
 #define MS_BUZZ 8       /* buzzes (killer bee) */
 #define MS_GRUNT 9      /* grunts (or speaks own language) */
 #define MS_NEIGH 10     /* neighs, as an equine */
@@ -46,6 +46,12 @@
 #define MS_SPELL 37     /* spellcaster not matching any of the above */
 #define MS_WERE 38      /* lycanthrope in human form */
 #define MS_BOAST 39     /* giants */
+#define MS_BAT 40       /* bats */
+#define MS_WCHUCK 41    /* woodchucks don't sound like rodents */
+#define MS_RAPTOR 42    /* birds of prey */
+#define MS_LIZARD 43    /* lizard (and turtle) hiss specialization */
+#define MS_PSEUDO 44    /* pseudodragon hiss specialization */
+#define MS_TRUMPET 45   /* trunk-based roar specialization */
 
 #define MR_FIRE 0x00000001L    /* resists fire */
 #define MR_COLD 0x00000002L    /* resists cold */
@@ -73,6 +79,7 @@
 #define MR2_FREE_ACTION 0x00080000L /* has free action */
 #define MR2_BARKSKIN 0x00100000L    /* has barkskin */
 #define MR2_STONESKIN 0x00200000L   /* has stoneskin */
+#define MR2_FLY 0x00400000L         /* can fly (extrinsic) */
 
 #define M1_FLY 0x00000001L         /* can fly or float */
 #define M1_SWIM 0x00000002L        /* can traverse water */
@@ -117,6 +124,7 @@
 #define M2_DRUID_FORM_B 0x00000004L /* monster a druid can wildshape into, second tier */
 #define M2_DRUID_FORM_C 0x00000008L /* monster a druid can wildshape into, third tier */
 #define M2_DRUID_FORM_D 0x00000010L /* monster a druid can wildshape into, fourth tier */
+#define M2_VAMPIRE_FORM 0x00000020L /* monsters a vampire can shapechange into */
 #define M2_LORD 0x00000400L         /* is an overlord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
@@ -180,33 +188,34 @@
 #define MZ_GIGANTIC 7      /* off the scale */
 
 /* Remember to update mon_race_name method when adding bits here */
-#define MH_HUMAN 0x00000001L
-#define MH_ELF 0x00000002L
-#define MH_DWARF 0x00000004L
-#define MH_GNOME 0x00000008L
-#define MH_ORC 0x00000010L
-#define MH_GIANT 0x00000020L
-#define MH_HOBBIT 0x00000040L
-#define MH_CENTAUR 0x00000080L
-#define MH_ILLITHID 0x00000100L
-#define MH_TORTLE 0x00000200L
-#define MH_DROW 0x00000400L
-#define MH_ZOMBIE 0x00000800L
-/* Flags below not used as a player race (demon has one exception) */
-#define MH_UNZOMBIE 0x00001000L
+#define MH_HUMAN      0x00000001L
+#define MH_ELF        0x00000002L
+#define MH_DWARF      0x00000004L
+#define MH_GNOME      0x00000008L
+#define MH_ORC        0x00000010L
+#define MH_GIANT      0x00000020L
+#define MH_HOBBIT     0x00000040L
+#define MH_CENTAUR    0x00000080L
+#define MH_ILLITHID   0x00000100L
+#define MH_TORTLE     0x00000200L
+#define MH_DROW       0x00000400L
+#define MH_ZOMBIE     0x00000800L
+#define MH_VAMPIRE    0x00001000L
+#define MH_DEMON      0x00002000L
+/* Flags below not used as a player race */
+#define MH_UNZOMBIE   0x00004000L
+#define MH_WERE       0x00008000L
+#define MH_DRAGON     0x00010000L
+#define MH_ANGEL      0x00020000L
+#define MH_OGRE       0x00040000L
+#define MH_TROLL      0x00080000L
+#define MH_GNOLL      0x00100000L
+#define MH_SPIDER     0x00200000L
+#define MH_JABBERWOCK 0x00400000L
+#define MH_WRAITH     0x00800000L
 #define MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE)
-#define MH_WERE 0x00002000L
-#define MH_DEMON 0x00004000L
-#define MH_DRAGON 0x00008000L
-#define MH_ANGEL 0x00010000L
-#define MH_OGRE 0x00020000L
-#define MH_TROLL 0x00040000L
-#define MH_GNOLL 0x00080000L
-#define MH_SPIDER 0x00100000L
-#define MH_JABBERWOCK 0x00200000L
-#define MH_WRAITH 0x00400000L
 
-#define MH_ANY 0x80000000L
+#define MH_ANY        0x80000000L
 
 /* for mons[].geno (constant during game) */
 #define G_TALG 0x8000     /* can't be genocided until Tal'Gath is destroyed */

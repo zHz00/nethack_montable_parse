@@ -129,7 +129,7 @@
 1779546944 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\color.h
 	<regex.h>
 
-1779580699 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
+1783257576 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\main.cpp
 	<iostream>
 	<fstream>
 	<cstdlib>
@@ -203,7 +203,7 @@
 
 1757162266 c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\wards.h
 
-1757162266 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\wards.c
+1779626943 source:c:\users\zhz\nethack-montable-parse\monst_parse_08_dnh\wards.c
 	<stdlib.h>
 	<string.h>
 	<stdio.h>

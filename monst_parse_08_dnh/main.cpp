@@ -30,6 +30,13 @@ using namespace std;
 #define C(color)
 #endif
 
+#define is_demon(ptr)		(((ptr)->mflagsa & MA_DEMON) != 0L)
+#define is_undead(ptr)		(((ptr)->mflagsa & MA_UNDEAD) != 0L)
+#define is_plant(ptr)		(((ptr)->mflagsa & MA_PLANT) != 0L)
+#define is_wooden(ptr)		((strcmp(mons[x].mname,"wood golem")==0) || (strcmp(mons[x].mname,"living lectern")==0) || is_plant(ptr))
+
+#define hates_light(ptr) (strcmp((ptr)->mname,"gremlin")==0)
+
 char domestic[][40]={
     "little dog",
     "dog",
@@ -1509,6 +1516,29 @@ not_cannibal:
         fout<<",";
         // 34 -- flags4
         fout << convert_dnh_flags(4,&(mons[x]));
+        if(strcmp(mons[x].mname,"Smaug")==0)
+        {
+            fout<<"|M4_HATESPIERCE";
+        }
+        if(is_wooden(&(mons[x])))
+        {
+            fout<<"|M4_HATESAXE";
+        }
+        if(mons[x].mlet==S_PLANT)
+        {
+            fout<<"|M4_HATESHARVEST";
+        }
+        if(hates_light(&(mons[x])))
+        {
+            fout<<"M4_HATESLIGHT|";//it seems unchanged from 3.4.3
+        }
+
+        if(is_demon(&(mons[x])) ||
+           (is_undead(&(mons[x])) && strcmp(mons[x].mname,"dread seraph")!=0) ||
+            (((&(mons[x]))->mflagsg&MG_HATESHOLY) != 0))//can be duplicated
+        {
+            fout<<"|M4_HATESHOLY";
+        }
         fout<<",";
         // 35 -- mhflags
         flag_found=false;

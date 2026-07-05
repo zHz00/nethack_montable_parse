@@ -38,6 +38,99 @@ typedef unsigned char boolean;
 #define C(color)
 #endif
 
+enum obj_material_types {
+    NO_MATERIAL =  0,
+    LIQUID      =  1, /* currently only for venom */
+    WAX         =  2,
+    VEGGY       =  3, /* foodstuffs */
+    FLESH       =  4, /*   ditto    */
+    PAPER       =  5,
+    CLOTH       =  6,
+    LEATHER     =  7,
+    WOOD        =  8,
+    BONE        =  9,
+    DRAGON_HIDE = 10, /* not leather! */
+    IRON        = 11, /* Fe - includes steel */
+    METAL       = 12, /* Sn, &c. */
+    COPPER      = 13, /* Cu - includes brass */
+    SILVER      = 14, /* Ag */
+    GOLD        = 15, /* Au */
+    PLATINUM    = 16, /* Pt */
+    MITHRIL     = 17,
+    PLASTIC     = 18,
+    GLASS       = 19,
+    GEMSTONE    = 20,
+    MINERAL     = 21,
+    NUM_MATERIAL_TYPES
+};
+
+#define is_were(ptr)		(((ptr)->mflags2 & M2_WERE) != 0L)
+#define is_demon(ptr)		(((ptr)->mflags2 & M2_DEMON) != 0L)
+#define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
+#define is_undead(ptr) (((ptr)->mflags2 & M2_UNDEAD) != 0L)
+#define hates_light(ptr) (strcmp((ptr)->pmnames[2],"gremlin")==0)
+#define is_wooden(ptr)		(strcmp((ptr)->pmnames[2],"wood golem")==0)
+
+#define FALSE false
+#define TRUE true
+
+/* does monster-type deal out a particular type of damage from a particular
+   type of attack? */
+struct attack *
+dmgtype_fromattack(struct permonst *ptr, int dtyp, int atyp)
+{
+    struct attack *a;
+
+    for (a = &ptr->mattk[0]; a < &ptr->mattk[NATTK]; a++)
+        if (a->adtyp == dtyp && (atyp == AT_ANY || a->aatyp == atyp))
+            return a;
+    return (struct attack *) 0;
+}
+
+/* does monster-type deal out a particular type of damage from any attack */
+boolean
+dmgtype(struct permonst *ptr, int dtyp)
+{
+    return dmgtype_fromattack(ptr, dtyp, AT_ANY) ? TRUE : FALSE;
+}
+
+
+boolean
+hates_material(struct permonst *ptr, int material)
+{
+    if (material == SILVER) {
+        if (ptr->mlet == S_IMP) {
+            /* impish creatures that aren't actually demonic */
+            if (strcmp((ptr)->pmnames[2],"tengu")==0)
+                return FALSE;
+        }
+        return (is_were(ptr) || ptr->mlet == S_VAMPIRE
+                || is_demon(ptr) || strcmp((ptr)->pmnames[2],"shade")==0
+                || (ptr->mlet == S_IMP));
+    }
+    else if (material == IRON) {
+        if (is_undead(ptr)) {
+            return FALSE;
+        }
+        /* cold iron: fairy/fae creatures hate it */
+        return (ptr->mlet == S_ELF || is_elf(ptr) || ptr->mlet == S_NYMPH
+                || ptr->mlet == S_IMP);
+    }
+    else if (material == COPPER) {
+        /* copper has antibacterial and antifungal properties,
+         * very good versus sickness, mold and decay */
+        return (ptr->mlet == S_FUNGUS || dmgtype(ptr, AD_DISE)
+                || dmgtype(ptr, AD_DCAY) || dmgtype(ptr, AD_PEST));
+    }
+    return FALSE;
+}
+
+boolean
+hates_blessings(struct permonst *ptr)
+{
+    return (boolean) (is_undead(ptr) || is_demon(ptr));
+}
+
 char domestic[][40]={
     "little dog",
     "dog",
@@ -1124,6 +1217,33 @@ int main()
                 fout<<"|";
             flag_found=true;
             fout<<get_prob(&(mons[x]),"Telepathy");
+        }
+
+        fout<<",";
+        // 34 -- flags4
+        if(hates_material(&(mons[x]),SILVER))
+        {
+            fout<<"M4_HATESSILVER|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_material(&(mons[x]),IRON))
+        {
+            fout<<"M4_HATESIRON|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_material(&(mons[x]),COPPER))
+        {
+            fout<<"M4_HATESCOPPER|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_blessings(&(mons[x])))
+        {
+            fout<<"M4_HATESHOLY|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_light(&(mons[x])))
+        {
+            fout<<"M4_HATESLIGHT|";
+        }
+        if(is_wooden(&(mons[x])))
+        {
+            fout<<"M4_HATESAXE|";
         }
 
         fout << endl;

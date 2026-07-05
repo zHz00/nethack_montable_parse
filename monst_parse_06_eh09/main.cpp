@@ -5,6 +5,9 @@
 #include <ctime>
 #include <locale>
 using namespace std;
+typedef unsigned char boolean;
+#define FALSE false
+#define TRUE true
 
 #include "config.h"
 #include "monsym.h"
@@ -28,6 +31,107 @@ using namespace std;
 #else
 #define C(color)
 #endif
+
+#define has_barkskin(ptr) \
+    (ptr->mresists & MR2_BARKSKIN) != 0)
+#define has_stoneskin(mon) \
+    (ptr->mresists & MR2_STONESKIN) != 0)
+
+#define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
+#define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
+#define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
+#define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
+#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
+#define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
+#define is_vampire(ptr) (((ptr)->mhflags & MH_VAMPIRE) != 0L)
+#define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
+#define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
+#define is_plant(ptr) ((ptr)->mlet == S_PLANT)
+#define is_bone_monster(ptr) \
+    ((strcmp((ptr)->mname,"bone devil")==0) || is_skeleton(ptr))
+
+#define is_blight(ptr) \
+    ((strcmp((ptr)->mname,"twig blight")==0)       \
+     || (strcmp((ptr)->mname,"tree blight")==0)    \
+     || (strcmp((ptr)->mname,"needle blight")==0)  \
+     || (strcmp((ptr)->mname,"gulthias tree")==0))
+
+#define is_wooden(ptr) \
+    ((strcmp((ptr)->mname,"wood golem")==0) || (strcmp((ptr)->mname,"ent")==0) \
+     || (strcmp((ptr)->mname,"elder ent")==0) || is_blight(ptr))
+
+
+#define hates_light(ptr) ((strcmp((ptr)->mname,"gremlin")==0)||\
+                          (strcmp((ptr)->mname,"shadow dragon")==0)||\
+                          (strcmp((ptr)->mname,"baby shadow dragon")==0)||\
+                          is_drow(ptr)\
+                          )
+
+enum obj_material_types {
+    LIQUID      =  1, /* currently only for venom */
+    WAX         =  2,
+    VEGGY       =  3, /* foodstuffs */
+    FLESH       =  4, /*   ditto    */
+    PAPER       =  5,
+    CLOTH       =  6,
+    SPIDER_SILK =  7,
+    LEATHER     =  8,
+    WOOD        =  9,
+    BONE        = 10,
+    DRAGON_HIDE = 11, /* not leather! */
+    IRON        = 12, /* Fe */
+    STEEL       = 13, /* Stainless steel, Sn, &c. */
+    COPPER      = 14, /* Cu - includes brass */
+    BRONZE      = 15,
+    SILVER      = 16, /* Ag */
+    GOLD        = 17, /* Au */
+    PLATINUM    = 18, /* Pt */
+    MITHRIL     = 19,
+    ADAMANTINE  = 20,
+    PLASTIC     = 21,
+    GLASS       = 22,
+    GEMSTONE    = 23,
+    MINERAL     = 24,
+    NUM_MATERIAL_TYPES
+};
+
+boolean
+hates_material(struct permonst * ptr, int material)
+{
+    if (material == SILVER) {
+        if (ptr->mlet == S_IMP) {
+            /* impish creatures that aren't actually demonic */
+            if (strcmp((ptr)->mname,"tengu")==0 || strcmp((ptr)->mname,"leprechaun")==0)
+                return FALSE;
+        }
+        return (is_were(ptr) || is_vampire(ptr)
+                || is_demon(ptr) || strcmp((ptr)->mname,"shade")==0
+                || (ptr->mlet == S_IMP));
+    } else if (material == IRON) {
+        if (is_undead(ptr))
+            return FALSE;
+        /* cold iron: elves and drow hate it */
+        return (is_elf(ptr) || is_drow(ptr));
+    } else if (material == MITHRIL) {
+        if (is_undead(ptr))
+            return FALSE;
+        /* mithril: orcs hate it */
+        return (is_orc(ptr));
+    }
+    return FALSE;
+}
+
+boolean
+hates_blessings(struct permonst *ptr)
+{
+    return (boolean) (is_undead(ptr) || is_demon(ptr));
+}
+
+boolean
+hates_curses(struct permonst *ptr)
+{
+    return (boolean) (is_angel(ptr));
+}
 
 /*
 #define telepathic(ptr) \
@@ -134,6 +238,9 @@ char mlet_s[][40]={
 "S_DEMON",
 "S_EEL",
 "S_LIZARD",
+"S_ENT",
+"S_PLANT",
+"S_ORB",
 "S_WORM_TAIL",
 "S_MIMIC_DEF",
 "S_STATUE"
@@ -169,6 +276,7 @@ struct dict_s mr_s[]=
 {"MR2_FREE_ACTION", 0x00080000L},
 {"MR2_BARKSKIN", 0x00100000L},
 {"MR2_STONESKIN", 0x00200000L},
+{"MR2_FLY", 0x00400000L},
 {"",0}
 
 };
@@ -218,6 +326,7 @@ struct dict_s f2_s[]=
 {"M2_DRUID_FORM_B",0x00000004L},
 {"M2_DRUID_FORM_C",0x00000008L},
 {"M2_DRUID_FORM_D",0x00000010L},
+{"M2_VAMPIRE_FORM", 0x00000020L},
 {"M2_DWARF",0x00000020L},
 {"M2_GNOME",0x00000040L},
 {"M2_ORC",0x00000080L},
@@ -336,7 +445,13 @@ struct dict_s ms_36_s[]=
 {"MS_SPELL",37},
 {"MS_WERE",38},
 {"MS_BOAST",39},
-{"MS_ONEEYEDSAM",40},
+{"MS_BAT", 40},       /* bats */
+{"MS_WCHUCK", 41},    /* woodchucks don't sound like rodents */
+{"MS_RAPTOR", 42},    /* birds of prey */
+{"MS_LIZARD", 43},    /* lizard (and turtle) hiss specialization */
+{"MS_PSEUDO", 44},    /* pseudodragon hiss specialization */
+{"MS_TRUMPET", 45},
+
 {"",0}
 
 };
@@ -511,18 +626,19 @@ struct dict_s mh_s[]=
 {"MH_TORTLE",0x00000200L},
 {"MH_DROW",0x00000400L},
 {"MH_ZOMBIE",0x00000800L},
-{"MH_UNZOMBIE",0x00001000L},
+{"MH_VAMPIRE",0x00001000L},
+{"MH_DEMON",0x00002000L},
+{"MH_UNZOMBIE",0x00004000L},
 //{"MH_UNDEAD",(MH_ZOMBIE|MH_UNZOMBIE)},
-{"MH_WERE",0x00002000L},
-{"MH_DEMON",0x00004000L},
-{"MH_DRAGON",0x00008000L},
-{"MH_ANGEL",0x00010000L},
-{"MH_OGRE",0x00020000L},
-{"MH_TROLL",0x00040000L},
-{"MH_GNOLL",0x00080000L},
-{"MH_SPIDER",0x00100000L},
-{"MH_JABBERWOCK",0x00200000L},
-{"MH_WRAITH",0x00400000L},
+{"MH_WERE",0x00008000L},
+{"MH_DRAGON",0x00010000L},
+{"MH_ANGEL",0x00020000L},
+{"MH_OGRE",0x00040000L},
+{"MH_TROLL",0x00080000L},
+{"MH_GNOLL",0x00100000L},
+{"MH_SPIDER",0x00200000L},
+{"MH_JABBERWOCK",0x00400000L},
+{"MH_WRAITH",0x00800000L},
 };
 
 char *get_prob(struct permonst *m,char *resist)
@@ -748,7 +864,7 @@ int main()
     std::cout<<"File name:"<<fname<<std::endl;
     fout.open(fname);
 
-    fout<<"EvilHack 0.9.1,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
+    fout<<"EvilHack 0.9.2,namem,namef,namen,symbol,Difficulty Lvl,Move Rate,Armor Class,";
     //     0     1     2     3     4      5              6         7
     fout<<"Magic Resist,Alignment,generation flags,Attack 1,Attack 2,Attack 3,";
     //     8            9         10               11       12       13
@@ -1091,6 +1207,44 @@ int main()
                 flag_found=true;
             }
         }
+       fout<<"|";
+       if(hates_material(&(mons[x]),SILVER))
+        {
+            fout<<"M4_HATESSILVER|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_material(&(mons[x]),IRON))
+        {
+            fout<<"M4_HATESIRON|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_material(&(mons[x]),MITHRIL))
+        {
+            fout<<"M4_HATESMITHRIL|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_blessings(&(mons[x])))
+        {
+            fout<<"M4_HATESHOLY|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_curses(&(mons[x])))
+        {
+            fout<<"M4_HATESUNHOLY|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_light(&(mons[x])))
+        {
+            fout<<"M4_HATESLIGHT|";
+        }
+        if(is_bone_monster(&(mons[x])))
+        {
+            fout<<"M4_HATESBLUNT|";
+        }
+        if(is_bone_monster(&(mons[x])))
+            fout<<"M4_RSLASH|M4_RPIERCE|";
+
+        if(is_wooden(&(mons[x])) || is_plant(&(mons[x])))
+            fout<<"M4_RBLUNT|";
+        if(is_wooden(&(mons[x]))||is_plant(&(mons[x])))
+        {
+            fout<<"M4_HATESAXE|";
+        }
         fout<<",";
         // 35 -- mhflags
         flag_found=false;
@@ -1104,7 +1258,6 @@ int main()
                 flag_found=true;
             }
         }
-        fout<<",";
         fout << endl;
 
 

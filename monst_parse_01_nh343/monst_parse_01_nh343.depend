@@ -101,3 +101,50 @@
 	"permonst.h"
 	"color.h"
 
+1070840354 source:c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\monst.c
+	"config.h"
+	"permonst.h"
+	"monsym.h"
+	"dungeon.h"
+	"eshk.h"
+	"vault.h"
+	"epri.h"
+	"color.h"
+
+1734900100 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\config.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\permonst.h
+	"align.h"
+	"monattk.h"
+	"monflag.h"
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\align.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\monattk.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\monflag.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\monsym.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\dungeon.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\eshk.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\vault.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\epri.h
+
+1070840354 c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\color.h
+
+1783253700 source:c:\users\zhz\nethack-montable-parse\monst_parse_01_nh343\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+

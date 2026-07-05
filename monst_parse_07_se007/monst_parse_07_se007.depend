@@ -189,3 +189,15 @@
 
 1752262235 c:\users\user\documents\nethack_montable_parse\monst_parse_07_se007\egyp.h
 
+1783252820 source:c:\users\zhz\nethack-montable-parse\monst_parse_07_se007\main.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<locale>
+	"config.h"
+	"monsym.h"
+	"permonst.h"
+	"color.h"
+

@@ -29,6 +29,28 @@ using namespace std;
 #define C(color)
 #endif
 
+#define is_were(ptr)		(((ptr)->mflags2 & M2_WERE) != 0L)
+#define is_demon(ptr)		(((ptr)->mflags2 & M2_DEMON) != 0L)
+#define is_undead(ptr) (((ptr)->mflags2 & M2_UNDEAD) != 0L)
+#define is_wooden(ptr)		(strcmp((ptr)->mname,"wood golem")==0)
+
+boolean
+hates_silver(struct permonst *ptr)
+/* returns TRUE if monster is especially affected by silver weapons */
+{
+	return((boolean)(is_were(ptr) || ptr->mlet==S_VAMPIRE || is_demon(ptr) ||
+		strcmp((ptr)->mname,"shade")==0 ||
+		(ptr->mlet==S_IMP && strcmp((ptr)->mname,"tengu")!=0)));
+}
+
+#define hates_light(ptr) (strcmp((ptr)->mname,"gremlin")==0)
+
+boolean
+hates_blessings(struct permonst *ptr)
+{
+    return (boolean) (is_undead(ptr) || is_demon(ptr));
+}
+
 char domestic[][40]={
     "little dog",
     "dog",
@@ -952,6 +974,26 @@ int main()
                 fout<<"|";
             flag_found=true;
             fout<<get_prob(&(mons[x]),"Telepathy");
+        }
+
+        fout<<",";
+        // 34 -- flags4
+        if(hates_silver(&(mons[x])))
+        {
+            fout<<"M4_HATESSILVER|";//this is dNetHack flag which is convenient in any version
+        }
+
+        if(hates_blessings(&(mons[x])))
+        {
+            fout<<"M4_HATESHOLY|";//this is dNetHack flag which is convenient in any version
+        }
+        if(hates_light(&(mons[x])))
+        {
+            fout<<"M4_HATESLIGHT|";
+        }
+        if(is_wooden(&(mons[x])))
+        {
+            fout<<"M4_HATESAXE|";
         }
 
         fout << endl;
